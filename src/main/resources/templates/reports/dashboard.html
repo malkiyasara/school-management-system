@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Reports Dashboard - SchoolMS</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+    <style>
+        /* Additional styles for reports dashboard */
+        .report-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .report-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+        }
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .btn-report {
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-report:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <h1 class="page-title">
+                    <i class="fas fa-chart-pie me-3"></i>
+                    Reports Dashboard
+                </h1>
+                <p class="section-subtitle">Comprehensive insights into academic performance</p>
+            </div>
+            
+            <div class="user-menu">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon me-2"></i>
+                    Dark Mode
+                </button>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Welcome Section -->
+        <div class="dashboard-card text-center mb-4">
+            <h2 class="card-title mb-3">
+                <i class="fas fa-chart-line me-3"></i>
+                Reports & Analytics
+            </h2>
+            <p class="card-description">Comprehensive insights into academic performance and statistics</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="report-card text-center">
+                    <i class="fas fa-user-graduate fa-3x text-primary mb-3"></i>
+                    <div class="stat-number" th:text="${totalStudents != null ? totalStudents : 0}">0</div>
+                    <h5 class="card-title">Total Students</h5>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="report-card text-center">
+                    <i class="fas fa-file-alt fa-3x text-warning mb-3"></i>
+                    <div class="stat-number" th:text="${totalExams != null ? totalExams : 0}">0</div>
+                    <h5 class="card-title">Total Exams</h5>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="report-card text-center">
+                    <i class="fas fa-chart-bar fa-3x text-info mb-3"></i>
+                    <div class="stat-number" th:text="${totalMarks != null ? totalMarks : 0}">0</div>
+                    <h5 class="card-title">Total Marks Recorded</h5>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Navigation -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="report-card">
+                    <h4 class="card-title mb-3">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Performance Reports
+                    </h4>
+                    <p class="card-description mb-3">Generate comprehensive performance analytics and insights.</p>
+                    <a href="/reports/performance" class="btn btn-primary btn-report">
+                        <i class="fas fa-chart-line me-2"></i>View Performance Report
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="report-card">
+                    <h4 class="card-title mb-3">
+                        <i class="fas fa-users me-2"></i>
+                        Class Analytics
+                    </h4>
+                    <p class="card-description mb-3">Analyze performance by class and subject.</p>
+                    <a href="/reports/class" class="btn btn-success btn-report">
+                        <i class="fas fa-users me-2"></i>View Class Analytics
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="report-card">
+                    <h4 class="card-title mb-3">
+                        <i class="fas fa-bolt me-2"></i>
+                        Quick Report Actions
+                    </h4>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="/students" class="btn btn-outline-primary btn-report">
+                            <i class="fas fa-list me-2"></i>Student List
+                        </a>
+                        <a href="/exams" class="btn btn-outline-warning btn-report">
+                            <i class="fas fa-file-alt me-2"></i>Exam List
+                        </a>
+                        <a href="/marks" class="btn btn-outline-info btn-report">
+                            <i class="fas fa-chart-bar me-2"></i>Marks List
+                        </a>
+                        <a href="/" class="btn btn-outline-secondary btn-report">
+                            <i class="fas fa-home me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:replace="fragments/styles :: common-scripts"></th:block>
+</body>
+</html>
