@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit User</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3">
+            <th:block th:replace="fragments/sidebar :: sidebar"></th:block>
+        </div>
+        <div class="col-9 mt-4">
+            <h2>Edit User</h2>
+            <form th:action="@{'/users/edit/' + ${user.id}}" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input name="username" class="form-control" th:value="${user.username}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Full name</label>
+                    <input name="fullName" class="form-control" th:value="${user.fullName}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Role</label>
+                    <select name="role" class="form-select" required>
+                        <option value="ADMIN" th:selected="${user.role == 'ADMIN'}">ADMIN</option>
+                        <option value="TEACHER" th:selected="${user.role == 'TEACHER'}">TEACHER</option>
+                        <option value="STAFF" th:selected="${user.role == 'STAFF'}">STAFF</option>
+                    </select>
+                </div>
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" name="active" th:checked="${user.active}">
+                    <label class="form-check-label">Active</label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">New Password (optional)</label>
+                    <input type="password" name="password" class="form-control">
+                </div>
+                <button class="btn btn-primary" type="submit">Update</button>
+                <a href="/users" class="btn btn-secondary ms-2">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+<th:block th:replace="fragments/styles :: common-scripts"></th:block>
+</body>
+</html>
+

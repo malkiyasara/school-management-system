@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Student - SchoolMS</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+    <style>
+        /* Page-specific bits to support the password UX (kept minimal) */
+        .password-strength { height: 5px; margin-top: 5px; border-radius: 5px; transition: all .3s ease; }
+        .strength-weak   { width: 25%;  background-color: var(--danger-color, #dc3545); }
+        .strength-medium { width: 50%;  background-color: var(--warning-color, #ffc107); }
+        .strength-strong { width: 100%; background-color: var(--accent-color, #198754); }
+
+        .password-container { position: relative; }
+        .password-toggle {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: transparent; border: 0; color: var(--dark-text-secondary, #6c757d);
+            cursor: pointer; display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center;
+        }
+        .password-container .form-control { padding-right: 48px; }
+    </style>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <i class="fas fa-graduation-cap me-2"></i>
+            SchoolMS
+        </div>
+        <div class="sidebar-subtitle">Management System</div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-item">
+            <a href="/" class="nav-link">
+                <i class="fas fa-tachometer-alt nav-icon"></i>
+                Dashboard
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/students" class="nav-link active">
+                <i class="fas fa-user-graduate nav-icon"></i>
+                Students
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/exams" class="nav-link">
+                <i class="fas fa-file-alt nav-icon"></i>
+                Exams
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/marks" class="nav-link">
+                <i class="fas fa-chart-line nav-icon"></i>
+                Marks
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/reports" class="nav-link">
+                <i class="fas fa-chart-pie nav-icon"></i>
+                Reports
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/attendance" class="nav-link">
+                <i class="fas fa-calendar-check nav-icon"></i>
+                Attendance
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="/settings" class="nav-link">
+                <i class="fas fa-cog nav-icon"></i>
+                Settings
+            </a>
+        </div>
+    </nav>
+
+    <div class="sidebar-footer">
+        <p>© 2024 SchoolMS</p>
+        <p>v2.0 Dashboard</p>
+    </div>
+</div>
+
+
+<div class="main-content">
+    <div class="top-bar">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-user-plus me-3"></i>
+                Add New Student
+            </h1>
+            <p class="section-subtitle">Create a new student profile</p>
+        </div>
+        <div class="user-menu">
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <i class="fas fa-moon me-2"></i>
+                Dark Mode
+            </button>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <h3 class="card-title mb-4">
+            <i class="fas fa-user-graduate me-2"></i>
+            Student Information
+        </h3>
+
+        <!--Error alert -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${error}">Error message</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <form id="addStudentForm" th:action="@{/students/add}" th:object="${student}" method="post" class="needs-validation" novalidate>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="firstName" class="form-label">
+                            <i class="fas fa-user me-2"></i>First Name:
+                        </label>
+                        <input type="text" class="form-control" id="firstName" th:field="*{firstName}" required minlength="2" maxlength="50" placeholder="First name">
+                        <div class="invalid-feedback">First name must be 2-50 characters.</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="lastName" class="form-label">
+                            <i class="fas fa-user me-2"></i>Last Name:
+                        </label>
+                        <input type="text" class="form-control" id="lastName" th:field="*{lastName}" required minlength="2" maxlength="50" placeholder="Last name">
+                        <div class="invalid-feedback">Last name must be 2-50 characters.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope me-2"></i>Email:
+                        </label>
+                        <input type="email" class="form-control" id="email" th:field="*{email}" required placeholder="name@example.com">
+                        <div class="invalid-feedback">Please provide a valid email address.</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="phoneNumber" class="form-label">
+                            <i class="fas fa-phone me-2"></i>Phone Number:
+                        </label>
+                        <input type="text" class="form-control" id="phoneNumber" th:field="*{phoneNumber}" pattern="^[0-9]{10}$" placeholder="07XXXXXXXX" required>
+                        <div class="invalid-feedback">Enter a valid 10-digit phone number.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="address" class="form-label">
+                    <i class="fas fa-map-marker-alt me-2"></i>Address:
+                </label>
+                <textarea class="form-control" id="address" th:field="*{address}" rows="2" required minlength="5" maxlength="200" placeholder="Street, City"></textarea>
+                <div class="invalid-feedback">Address must be 5-200 characters.</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="className" class="form-label">
+                            <i class="fas fa-chalkboard me-2"></i>Class:
+                        </label>
+                        <select class="form-select" id="className" th:field="*{className}" required>
+                            <option value="">-- Select Class --</option>
+                            <th:block th:each="grade : ${#numbers.sequence(1,13)}">
+                                <option th:value="${'Grade ' + grade + 'A'}"
+                                        th:text="${'Grade ' + grade + 'A'}"></option>
+                                <option th:value="${'Grade ' + grade + 'B'}"
+                                        th:text="${'Grade ' + grade + 'B'}"></option>
+                            </th:block>
+                        </select>
+                        <div class="invalid-feedback">Please select a class.</div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-3 password-container">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock me-2"></i>Password:
+                        </label>
+                        <input type="password" class="form-control" id="password" th:field="*{password}" required minlength="8" placeholder="Set initial password">
+                        <button type="button" class="password-toggle" id="passwordToggle"></button>
+                        <div class="invalid-feedback">Password must be at least 8 characters with uppercase, lowercase, number, and special character.</div>
+                        <div class="password-strength" id="passwordStrength"></div>
+                        <small class="text-muted">Will be securely hashed before saving.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3 password-container">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="confirmPassword" required placeholder="Confirm password">
+                <button type="button" class="password-toggle" id="confirmPasswordToggle">
+                </button>
+                <div class="invalid-feedback">Passwords do not match.</div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary btn-dashboard" id="saveButton">
+                    <i class="fas fa-save me-2"></i>Save Student
+                </button>
+                <a href="/students" class="btn btn-secondary btn-dashboard">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<th:block th:replace="fragments/styles :: common-scripts"></th:block>
+
+<!-- validation  -->
+<script>
+    (function() {
+        'use strict';
+
+        const form = document.getElementById('addStudentForm');
+
+        // Fields
+        const firstName = document.getElementById('firstName');
+        const lastName  = document.getElementById('lastName');
+        const email     = document.getElementById('email');
+        const phone     = document.getElementById('phoneNumber');
+        const address   = document.getElementById('address');
+        const classSel  = document.getElementById('className');
+
+        const password  = document.getElementById('password');
+        const confirmPw = document.getElementById('confirmPassword');
+
+        const pwBar     = document.getElementById('passwordStrength');
+        const saveBtn   = document.getElementById('saveButton');
+        const pwToggle  = document.getElementById('passwordToggle');
+        const cpwToggle = document.getElementById('confirmPasswordToggle');
+
+        // === Password helpers (same as register page) ===
+        function checkPasswordStrength(pw) {
+            let strength = 0;
+            if (pw.length >= 8) strength++;
+            if (/[a-z]/.test(pw)) strength++;
+            if (/[A-Z]/.test(pw)) strength++;
+            if (/[0-9]/.test(pw)) strength++;
+            if (/[^A-Za-z0-9]/.test(pw)) strength++;
+            return strength;
+        }
+
+        function updatePasswordStrength() {
+            const strength = checkPasswordStrength(password.value);
+            pwBar.className = 'password-strength';
+            if (!password.value) return;
+
+            if (strength <= 2) {
+                pwBar.classList.add('strength-weak');
+            } else if (strength <= 4) {
+                pwBar.classList.add('strength-medium');
+            } else {
+                pwBar.classList.add('strength-strong');
+            }
+        }
+
+        function validatePasswordComplexity() {
+            if (password.value.length > 0 && password.value.length < 8) {
+                password.setCustomValidity('Password must be at least 8 characters long');
+                password.classList.add('is-invalid');
+                return false;
+            } else if (password.value.length > 0) {
+                const strength = checkPasswordStrength(password.value);
+                if (strength < 3) {
+                    password.setCustomValidity('Password is too weak. Include uppercase, lowercase, numbers, and special characters.');
+                    password.classList.add('is-invalid');
+                    return false;
+                } else {
+                    password.setCustomValidity('');
+                    password.classList.remove('is-invalid');
+                    return true;
+                }
+            } else {
+                password.setCustomValidity('');
+                password.classList.remove('is-invalid');
+                return true;
+            }
+        }
+
+        function validatePasswordConfirmation() {
+            if (password.value !== confirmPw.value) {
+                confirmPw.setCustomValidity('Passwords do not match');
+                confirmPw.classList.add('is-invalid');
+                return false;
+            } else {
+                confirmPw.setCustomValidity('');
+                confirmPw.classList.remove('is-invalid');
+                return true;
+            }
+        }
+
+        function toggleVisibility(input, btn) {
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                input.type = 'password';
+                btn.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        }
+
+        // === Event listeners (mirror register page) ===
+        password.addEventListener('input', function() {
+            updatePasswordStrength();
+            validatePasswordComplexity();
+            validatePasswordConfirmation();
+        });
+
+        confirmPw.addEventListener('input', validatePasswordConfirmation);
+
+        pwToggle.addEventListener('click', function() {
+            toggleVisibility(password, pwToggle);
+        });
+        cpwToggle.addEventListener('click', function() {
+            toggleVisibility(confirmPw, cpwToggle);
+        });
+
+        // Real-time validation for required fields
+        const fields = form.querySelectorAll('input[required], textarea[required], select[required]');
+        fields.forEach(field => {
+            field.addEventListener('blur', () => {
+                if (!field.checkValidity()) {
+                    field.classList.add('is-invalid');
+                } else {
+                    field.classList.remove('is-invalid');
+                    field.classList.add('is-valid');
+                }
+            });
+        });
+
+        // Phone number validation — same 10-digit rule
+        phone.addEventListener('blur', () => {
+            const re = /^[0-9]{10}$/;
+            if (phone.value && !re.test(phone.value)) {
+                phone.classList.add('is-invalid');
+            } else {
+                phone.classList.remove('is-invalid');
+                if (phone.value) phone.classList.add('is-valid');
+            }
+        });
+
+        // Email validation
+        email.addEventListener('blur', () => {
+            const v = (email.value || '').trim();
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
+            if (v && !re.test(v)) {
+                email.classList.add('is-invalid');
+                email.classList.remove('is-valid');
+                email.setCustomValidity('Email must be a valid Gmail address like name@gmail.com.');
+            } else {
+                email.classList.remove('is-invalid');
+                if (v) email.classList.add('is-valid');
+                email.setCustomValidity('');
+            }
+        });
+
+
+        // Submit handler (same flow as register page)
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            } else {
+                if (!validatePasswordComplexity() || !validatePasswordConfirmation()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+                // Spinner / disable
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
+            }
+            form.classList.add('was-validated');
+        }, false);
+    })();
+</script>
+</body>
+</html>
