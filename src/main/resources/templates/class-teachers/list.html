@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Class Teachers</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3">
+            <th:block th:replace="fragments/sidebar :: sidebar"></th:block>
+        </div>
+        <div class="col-9 mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Class Teachers</h2>
+                <a href="/class-teachers/add" class="btn btn-primary">Assign Teacher</a>
+            </div>
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Class</th>
+                        <th>Teacher</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="a : ${assignments}">
+                        <td th:text="${a.className}"></td>
+                        <td th:text="${a.teacher != null ? a.teacher.fullName != null && !a.teacher.fullName.isEmpty() ? a.teacher.fullName : a.teacher.username : 'N/A'}"></td>
+                        <td>
+                            <a th:href="@{'/class-teachers/delete/' + ${a.id}}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete assignment?')">Delete</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<th:block th:replace="fragments/styles :: common-scripts"></th:block>
+</body>
+</html>
+

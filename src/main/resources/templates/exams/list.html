@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Exam List - SchoolMS</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+    <style>
+        /* Alert styles for dark theme */
+        .alert-success {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+        }
+        
+        .alert-danger {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid #f44336;
+            color: #f44336;
+        }
+        
+        .btn-close {
+            filter: invert(1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <h1 class="page-title">
+                    <i class="fas fa-file-alt me-3"></i>
+                    Exam Management
+                </h1>
+                <p class="section-subtitle">Manage exams, schedules, and assessments</p>
+            </div>
+            
+            <div class="user-menu">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon me-2"></i>
+                    Dark Mode
+                </button>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${param.success}">Success message</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        
+        <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span th:text="${param.error}">Error message</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-list me-2"></i>
+                    All Exams
+                </h3>
+                <a href="/exams/add" class="btn btn-primary btn-dashboard">
+                    <i class="fas fa-plus me-2"></i>Add New Exam
+                </a>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Exam Name</th>
+                            <th>Subject</th>
+                            <th>Class</th>
+                            <th>Date</th>
+                            <th>Total Marks</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${exams == null or exams.isEmpty()}">
+                            <td colspan="7" class="text-center py-4">
+                                <i class="fas fa-info-circle fa-2x text-muted mb-3 d-block"></i>
+                                <h5 class="text-muted">No Exams Found</h5>
+                                <p class="text-muted">Add your first exam to get started.</p>
+                                <a href="/exams/add" class="btn btn-primary btn-dashboard">
+                                    <i class="fas fa-plus me-2"></i>Add First Exam
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:each="exam : ${exams}" th:if="${exams != null and !exams.isEmpty()}">
+                            <td th:text="${exam.id}"></td>
+                            <td th:text="${exam.examName}"></td>
+                            <td th:text="${exam.subject}"></td>
+                            <td th:text="${exam.className}"></td>
+                            <td th:text="${#temporals.format(exam.examDate, 'dd-MM-yyyy')}"></td>
+                            <td th:text="${exam.totalMarks}"></td>
+                            <td>
+                                <a th:href="@{/exams/edit/{id}(id=${exam.id})}" class="btn btn-sm btn-warning me-1">
+                                    <i class="fas fa-edit me-1"></i>Edit
+                                </a>
+                                <a th:href="@{/exams/delete/{id}(id=${exam.id})}" 
+                                   class="btn btn-sm btn-danger me-1"
+                                   onclick="return confirm('Are you sure you want to delete this exam? This will also delete all marks recorded for this exam.')">
+                                    <i class="fas fa-trash me-1"></i>Delete
+                                </a>
+                                <a th:href="@{/marks/by-exam/{id}(id=${exam.id})}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-chart-line me-1"></i>View Marks
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:replace="fragments/styles :: common-scripts"></th:block>
+</body>
+</html> 

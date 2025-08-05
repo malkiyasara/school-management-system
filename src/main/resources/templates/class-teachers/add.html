@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Assign Class Teacher</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3">
+            <th:block th:replace="fragments/sidebar :: sidebar"></th:block>
+        </div>
+        <div class="col-9 mt-4">
+            <h2>Assign Teacher to Class</h2>
+            <form th:action="@{/class-teachers/add}" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Class Name</label>
+                    <input name="className" class="form-control" placeholder="e.g., Grade 10 A" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Teacher</label>
+                    <select name="teacherId" class="form-select" required>
+                        <option th:each="t : ${teachers}" th:value="${t.id}" th:text="${t.fullName != null && !t.fullName.isEmpty() ? t.fullName : t.username}"></option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" type="submit">Save</button>
+                <a href="/class-teachers" class="btn btn-secondary ms-2">Cancel</a>
+            </form>
+        </div>
+    </div>
+></div>
+<th:block th:replace="fragments/styles :: common-scripts"></th:block>
+</body>
+</html>
+

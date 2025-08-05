@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Exam - SchoolMS</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+    <style>
+        /* Alert styles for dark theme */
+        .alert-success {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+        }
+        
+        .alert-danger {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid #f44336;
+            color: #f44336;
+        }
+        
+        .btn-close {
+            filter: invert(1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <h1 class="page-title">
+                    <i class="fas fa-file-plus me-3"></i>
+                    Add New Exam
+                </h1>
+                <p class="section-subtitle">Create a new exam and assessment</p>
+            </div>
+            
+            <div class="user-menu">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon me-2"></i>
+                    Dark Mode
+                </button>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Error Messages -->
+        <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span th:text="${param.error}">Error message</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="dashboard-card">
+            <h3 class="card-title mb-4">
+                <i class="fas fa-file-alt me-2"></i>
+                Exam Details
+            </h3>
+            
+            <form th:action="@{/exams/add}" th:object="${exam}" method="post">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="examName" class="form-label">
+                                <i class="fas fa-file-signature me-2"></i>Exam Name:
+                            </label>
+                            <input type="text" class="form-control" id="examName" th:field="*{examName}" required 
+                                   placeholder="Enter exam name">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">
+                                <i class="fas fa-book me-2"></i>Subject:
+                            </label>
+                            <input type="text" class="form-control" id="subject" th:field="*{subject}" required 
+                                   placeholder="Enter subject name">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="className" class="form-label">
+                                <i class="fas fa-chalkboard me-2"></i>Class:
+                            </label>
+                            <input type="text" class="form-control" id="className" th:field="*{className}" required 
+                                   placeholder="Enter class (e.g., Grade 10A)">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="examDate" class="form-label">
+                                <i class="fas fa-calendar me-2"></i>Exam Date:
+                            </label>
+                            <input type="date" class="form-control" id="examDate" th:field="*{examDate}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="totalMarks" class="form-label">
+                                <i class="fas fa-trophy me-2"></i>Total Marks:
+                            </label>
+                            <input type="number" class="form-control" id="totalMarks" th:field="*{totalMarks}" required 
+                                   placeholder="Enter total marks" min="1">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="description" class="form-label">
+                        <i class="fas fa-align-left me-2"></i>Description:
+                    </label>
+                    <textarea class="form-control" id="description" th:field="*{description}" rows="4" 
+                              placeholder="Enter exam description (optional)"></textarea>
+                </div>
+                
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary btn-dashboard">
+                        <i class="fas fa-save me-2"></i>Save Exam
+                    </button>
+                    <a href="/exams" class="btn btn-secondary btn-dashboard">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <th:block th:replace="fragments/styles :: common-scripts"></th:block>
+</body>
+</html> 
