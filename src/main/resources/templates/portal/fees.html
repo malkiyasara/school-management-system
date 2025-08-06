@@ -1,0 +1,64 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Fees - Parent Portal</title>
+        <th:block th:replace="fragments/styles :: common-styles"></th:block>
+    </head>
+    <body>
+        <th:block th:replace="portal/fragments :: portal-header"></th:block>
+        <div class="container" style="max-width: 1000px; margin: 6vh auto">
+            <div class="dashboard-card mb-3">
+                <!-- Search removed: child details are auto-loaded for the logged-in parent -->
+            </div>
+            <div th:if="${student}">
+                <div
+                    class="d-flex justify-content-between align-items-center mb-2"
+                >
+                    <h4 class="card-title mb-0" th:text="${student.name}"></h4>
+                    <div
+                        class="text-muted"
+                        th:text="'Class: ' + ${student.className}"
+                    ></div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Fee ID</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Due</th>
+                                    <th>Paid</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="f : ${fees}">
+                                    <td th:text="${f.id}"></td>
+                                    <td
+                                        th:text="${#numbers.formatDecimal(f.amount, 1, 'COMMA', 2, 'POINT')}"
+                                    ></td>
+                                    <td th:text="${f.status}"></td>
+                                    <td th:text="${f.dueDate}"></td>
+                                    <td th:text="${f.paidDate}"></td>
+                                    <td th:text="${f.description}"></td>
+                                </tr>
+                                <tr th:if="${fees == null or fees.isEmpty()}">
+                                    <td
+                                        colspan="6"
+                                        class="text-center text-muted py-3"
+                                    >
+                                        No fee records found
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <th:block th:replace="portal/fragments :: portal-footer"></th:block>
+        <th:block th:replace="fragments/styles :: common-scripts"></th:block>
+    </body>
+</html>
