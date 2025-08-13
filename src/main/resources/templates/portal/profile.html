@@ -1,0 +1,287 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>My Profile - Parent Portal</title>
+        <th:block th:replace="fragments/styles :: common-styles"></th:block>
+        <style>
+            .profile-container {
+                max-width: 800px;
+                margin: 2rem auto;
+                padding: 2rem;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            }
+            .profile-header {
+                margin-bottom: 2rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid #eee;
+            }
+            .form-section {
+                margin-bottom: 2rem;
+            }
+            .form-section h3 {
+                color: #2c3e50;
+                margin-bottom: 1.5rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 2px solid #f8f9fa;
+            }
+            .btn-delete {
+                background-color: #dc3545;
+                color: white;
+            }
+            .btn-delete:hover {
+                background-color: #c82333;
+                color: white;
+            }
+        </style>
+    </head>
+    <body>
+        <th:block th:replace="portal/fragments :: portal-header"></th:block>
+
+        <div class="container mt-4">
+            <div class="profile-container">
+                <div class="profile-header">
+                    <h2><i class="fas fa-user-circle me-2"></i>My Profile</h2>
+                    <p class="text-muted">
+                        Manage your personal information and account settings
+                    </p>
+                </div>
+
+                <!-- Success/Error Messages -->
+                <div
+                    th:if="${successMessage}"
+                    class="alert alert-success"
+                    role="alert"
+                >
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${successMessage}"></span>
+                </div>
+                <div
+                    th:if="${errorMessage}"
+                    class="alert alert-danger"
+                    role="alert"
+                >
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span th:text="${errorMessage}"></span>
+                </div>
+
+                <!-- Profile Information Form -->
+                <form
+                    th:action="@{/portal/profile/update}"
+                    method="post"
+                    th:object="${profileUpdateRequest}"
+                >
+                    <!-- Personal Information -->
+                    <div class="form-section">
+                        <h3>Personal Information</h3>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Username</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    th:value="${parent.username}"
+                                    readonly
+                                />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    th:field="*{fullName}"
+                                    th:value="${parent.fullName}"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input
+                                    type="email"
+                                    class="form-control"
+                                    th:field="*{email}"
+                                    th:value="${parent.email}"
+                                    required
+                                />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone</label>
+                                <input
+                                    type="tel"
+                                    class="form-control"
+                                    th:field="*{phone}"
+                                    th:value="${parent.phone}"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Student Name</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    th:value="${parent.studentName}"
+                                    readonly
+                                />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Student Class</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    th:value="${parent.studentClass}"
+                                    readonly
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="form-section">
+                        <h3>Change Password</h3>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> Leave
+                            password fields blank to keep current password
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label"
+                                    >Current Password</label
+                                >
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    th:field="*{currentPassword}"
+                                />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">New Password</label>
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    th:field="*{newPassword}"
+                                />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label"
+                                    >Confirm New Password</label
+                                >
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    th:field="*{confirmPassword}"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                        <a href="/portal" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to
+                            Dashboard
+                        </a>
+                    </div>
+                </form>
+
+                <!-- Delete Account Section -->
+                <div class="mt-5 pt-4 border-top">
+                    <h4 class="text-danger">Danger Zone</h4>
+                    <p>
+                        Deleting your account will remove all your data from our
+                        system. This action cannot be undone.
+                    </p>
+                    <button
+                        type="button"
+                        class="btn btn-outline-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#deleteAccountModal"
+                    >
+                        <i class="fas fa-trash-alt me-2"></i>Delete My Account
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Account Confirmation Modal -->
+        <div
+            class="modal fade"
+            id="deleteAccountModal"
+            tabindex="-1"
+            aria-labelledby="deleteAccountModalLabel"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="deleteAccountModalLabel">
+                            Confirm Account Deletion
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Are you sure you want to delete your account? This
+                            action cannot be undone and all your data will be
+                            permanently removed.
+                        </p>
+                        <p class="fw-bold">
+                            This will also delete all associated student
+                            records.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Cancel
+                        </button>
+                        <form
+                            th:action="@{/portal/profile/delete}"
+                            method="post"
+                            class="d-inline"
+                        >
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash-alt me-2"></i>Delete My
+                                Account
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <th:block th:replace="portal/fragments :: portal-footer"></th:block>
+        <th:block th:replace="fragments/styles :: common-scripts"></th:block>
+
+        <script>
+            // Initialize tooltips
+            document.addEventListener("DOMContentLoaded", function () {
+                var tooltipTriggerList = [].slice.call(
+                    document.querySelectorAll('[data-bs-toggle="tooltip"]'),
+                );
+                var tooltipList = tooltipTriggerList.map(
+                    function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl);
+                    },
+                );
+            });
+        </script>
+    </body>
+</html>

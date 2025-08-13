@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Student Register - School Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 2rem 0;
+        }
+        .register-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            width: 100%;
+            max-width: 500px;
+        }
+        .register-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .register-header h2 {
+            color: #333;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-register {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        .btn-register:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e9ecef;
+        }
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Form Validation Styles */
+        .form-control.is-valid {
+            border-color: #198754;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6.4.4.4-.4'/%3e%3cpath d='M6 7v1'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .invalid-feedback {
+            display: none;
+            width: 100%;
+            margin-top: -0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.875em;
+            color: #dc3545;
+        }
+
+        .was-validated .form-control:invalid ~ .invalid-feedback,
+        .form-control.is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+
+        /* Password strength indicator */
+        .password-strength {
+            height: 5px;
+            margin-top: 5px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .mb--4{
+            margin-top: -18px;
+        }
+
+        .strength-weak {
+            width: 25%;
+            background-color: #dc3545;
+        }
+
+        .strength-medium {
+            width: 50%;
+            background-color: #ffc107;
+        }
+
+        .strength-strong {
+            width: 100%;
+            background-color: #198754;
+        }
+
+        /* Loading spinner */
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        /* Password toggle */
+        .password-toggle {
+            position: absolute;
+            right: 35px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6c757d;
+        }
+        .password-container {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+<div class="register-container">
+    <div class="register-header">
+        <h2><i class="fas fa-user-plus me-2"></i>Student Register</h2>
+        <p>Create your SchoolMS student account</p>
+    </div>
+
+    <form id="registerForm" th:action="@{/student/register}" method="post" class="needs-validation" novalidate>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">First Name</label>
+                <input type="text" name="firstName" id="firstName" class="form-control" required minlength="2" maxlength="50" placeholder="Enter first name">
+                <div class="invalid-feedback">First name must be 2-50 characters.</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Last Name</label>
+                <input type="text" name="lastName" id="lastName" class="form-control" required minlength="2" maxlength="50" placeholder="Enter last name">
+                <div class="invalid-feedback">Last name must be 2-50 characters.</div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" id="email" class="form-control" required placeholder="Enter your email">
+            <div class="invalid-feedback">Please provide a valid email address.</div>
+        </div>
+
+        <div class="mb-3 password-container">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" id="password" class="form-control" required minlength="8" placeholder="Enter password">
+            <span class="password-toggle mb--4" id="passwordToggle">
+            </span>
+            <div class="invalid-feedback">Password must be at least 8 characters with uppercase, lowercase, number, and special character.</div>
+            <div class="password-strength" id="passwordStrength"></div>
+            <small class="form-text text-muted">
+                Password must be at least 8 characters and include uppercase, lowercase, numbers, and special characters.
+            </small>
+        </div>
+
+        <div class="mb-3 password-container">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" required placeholder="Confirm password">
+            <span class="password-toggle mt-3" id="confirmPasswordToggle">
+            </span>
+            <div class="invalid-feedback">Passwords do not match.</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Phone</label>
+            <input type="text" name="phoneNumber" id="phoneNumber" class="form-control" pattern="^[0-9]{10}$" placeholder="Enter phone number" required>
+            <div class="invalid-feedback">Enter a valid 10-digit phone number.</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Class</label>
+            <select name="className" id="className" class="form-select" required>
+                <option value="">-- Select Class --</option>
+                <th:block th:each="grade : ${#numbers.sequence(1,13)}">
+                    <option th:value="${'Grade ' + grade + 'A'}"
+                            th:text="${'Grade ' + grade + 'A'}"></option>
+                    <option th:value="${'Grade ' + grade + 'B'}"
+                            th:text="${'Grade ' + grade + 'B'}"></option>
+                </th:block>
+            </select>
+            <div class="invalid-feedback">Please select a class.</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Address</label>
+            <textarea name="address" id="address" class="form-control" required minlength="5" maxlength="200" placeholder="Enter your address"></textarea>
+            <div class="invalid-feedback">Address must be 5-200 characters.</div>
+        </div>
+
+        <button type="submit" class="btn btn-register" id="registerButton">
+            <i class="fas fa-user-plus me-2"></i>Register
+        </button>
+    </form>
+
+    <!-- Error / Success Alerts -->
+    <div th:if="${error}" class="alert alert-danger mt-3">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span th:text="${error}"></span>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success mt-3">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${success}"></span>
+    </div>
+
+    <div class="login-link">
+        <p class="mb-0">Already have an account? <a th:href="@{/student/login}">Login here</a></p>
+    </div>
+</div>
+
+<!-- Enhanced validation script -->
+<script>
+    (function() {
+        'use strict';
+
+        // Fetch the form we want to apply validation to
+        const form = document.getElementById('registerForm');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const passwordStrength = document.getElementById('passwordStrength');
+        const registerButton = document.getElementById('registerButton');
+        const passwordToggle = document.getElementById('passwordToggle');
+        const confirmPasswordToggle = document.getElementById('confirmPasswordToggle');
+
+        // Password strength checker
+        function checkPasswordStrength(password) {
+            let strength = 0;
+
+            // Length check
+            if (password.length >= 8) strength++;
+
+            // Contains lowercase
+            if (/[a-z]/.test(password)) strength++;
+
+            // Contains uppercase
+            if (/[A-Z]/.test(password)) strength++;
+
+            // Contains numbers
+            if (/[0-9]/.test(password)) strength++;
+
+            // Contains special characters
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+            return strength;
+        }
+
+        // Update password strength indicator
+        function updatePasswordStrength() {
+            const strength = checkPasswordStrength(password.value);
+
+            // Reset
+            passwordStrength.className = 'password-strength';
+
+            if (password.value.length === 0) {
+                return;
+            }
+
+            if (strength <= 2) {
+                passwordStrength.classList.add('strength-weak');
+            } else if (strength <= 4) {
+                passwordStrength.classList.add('strength-medium');
+            } else {
+                passwordStrength.classList.add('strength-strong');
+            }
+        }
+
+        // Validate password confirmation
+        function validatePasswordConfirmation() {
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity('Passwords do not match');
+                confirmPassword.classList.add('is-invalid');
+                return false;
+            } else {
+                confirmPassword.setCustomValidity('');
+                confirmPassword.classList.remove('is-invalid');
+                return true;
+            }
+        }
+
+        // Validate password complexity
+        function validatePasswordComplexity() {
+            if (password.value.length > 0 && password.value.length < 8) {
+                password.setCustomValidity('Password must be at least 8 characters long');
+                password.classList.add('is-invalid');
+                return false;
+            } else if (password.value.length > 0) {
+                const strength = checkPasswordStrength(password.value);
+                if (strength < 3) {
+                    password.setCustomValidity('Password is too weak. Include uppercase, lowercase, numbers, and special characters.');
+                    password.classList.add('is-invalid');
+                    return false;
+                } else {
+                    password.setCustomValidity('');
+                    password.classList.remove('is-invalid');
+                    return true;
+                }
+            } else {
+                password.setCustomValidity('');
+                password.classList.remove('is-invalid');
+                return true;
+            }
+        }
+
+        // Toggle password visibility
+        function togglePasswordVisibility(input, toggle) {
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                input.type = 'password';
+                toggle.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        }
+
+        // Event listeners
+        password.addEventListener('input', function() {
+            updatePasswordStrength();
+            validatePasswordComplexity();
+            validatePasswordConfirmation();
+        });
+
+        confirmPassword.addEventListener('input', validatePasswordConfirmation);
+
+        passwordToggle.addEventListener('click', function() {
+            togglePasswordVisibility(password, passwordToggle);
+        });
+
+        confirmPasswordToggle.addEventListener('click', function() {
+            togglePasswordVisibility(confirmPassword, confirmPasswordToggle);
+        });
+
+        // Form submission handler
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            } else {
+                // Additional custom validation
+                if (!validatePasswordComplexity() || !validatePasswordConfirmation()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+
+                // Show loading state
+                registerButton.disabled = true;
+                registerButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Registering...';
+            }
+
+            form.classList.add('was-validated');
+        }, false);
+
+        // Real-time validation for all fields
+        const fields = form.querySelectorAll('input[required], textarea[required], select[required]');
+        fields.forEach(field => {
+            field.addEventListener('blur', () => {
+                if (!field.checkValidity()) {
+                    field.classList.add('is-invalid');
+                } else {
+                    field.classList.remove('is-invalid');
+                    field.classList.add('is-valid');
+                }
+            });
+        });
+
+        // Phone number validation
+        const phoneField = document.getElementById('phoneNumber');
+        phoneField.addEventListener('blur', () => {
+            const phonePattern = /^[0-9]{10}$/;
+            if (phoneField.value && !phonePattern.test(phoneField.value)) {
+                phoneField.classList.add('is-invalid');
+            } else {
+                phoneField.classList.remove('is-invalid');
+                if (phoneField.value) phoneField.classList.add('is-valid');
+            }
+        });
+
+        // Email validation
+        const emailField = document.getElementById('email');
+        emailField.addEventListener('blur', () => {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (emailField.value && !emailPattern.test(emailField.value)) {
+                emailField.classList.add('is-invalid');
+            } else {
+                emailField.classList.remove('is-invalid');
+                if (emailField.value) emailField.classList.add('is-valid');
+            }
+        });
+    })();
+</script>
+</body>
+</html>

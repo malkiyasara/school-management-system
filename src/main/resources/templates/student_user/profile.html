@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile | SchoolMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #a5b4fc;
+      --secondary: #f59e0b;
+      --success: #10b981;
+      --info: #3b82f6;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --dark: #1e293b;
+      --light: #f8fafc;
+      --gray: #64748b;
+      --gray-light: #e2e8f0;
+      --sidebar-width: 280px;
+      --header-height: 70px;
+      --card-radius: 16px;
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      background-color: #f1f5f9;
+      color: var(--dark);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100vh;
+      width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+      color: white;
+      z-index: 1000;
+      transition: var(--transition);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 1rem;
+    }
+
+    .sidebar-header h4 {
+      margin: 0;
+      font-weight: 700;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .sidebar-header p {
+      font-size: 0.85rem;
+      opacity: 0.8;
+      margin-top: 0.25rem;
+    }
+
+    .sidebar nav {
+      flex: 1;
+      padding: 0 1rem;
+    }
+
+    .sidebar .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 0.85rem 1rem;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 12px;
+      margin-bottom: 0.5rem;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar .nav-link::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: white;
+      transform: scaleY(0);
+      transition: var(--transition);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .sidebar .nav-link:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      transform: translateX(5px);
+    }
+
+    .sidebar .nav-link:hover::before {
+      transform: scaleY(1);
+    }
+
+    .sidebar .nav-link.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar .nav-link.active::before {
+      transform: scaleY(1);
+    }
+
+    .sidebar .nav-link i {
+      width: 24px;
+      text-align: center;
+      margin-right: 0.75rem;
+      font-size: 1.1rem;
+    }
+
+    .sidebar-footer {
+      padding: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      padding: 2rem;
+      min-height: 100vh;
+      transition: var(--transition);
+    }
+
+    /* Header */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 1rem 0;
+    }
+
+    .top-bar h1 {
+      margin: 0;
+      font-weight: 700;
+      font-size: 1.8rem;
+      color: var(--dark);
+    }
+
+    .name-highlight {
+      color: var(--primary);
+      background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .user-role {
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+
+    /* Profile Layout */
+    .profile-container {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Profile Card */
+    .profile-card {
+      background: white;
+      border-radius: var(--card-radius);
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      transition: var(--transition);
+      border: 1px solid var(--gray-light);
+      height: fit-content;
+    }
+
+    .profile-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 2.5rem;
+      margin: 0 auto 1rem;
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+      border: 4px solid white;
+    }
+
+    .profile-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      color: var(--dark);
+    }
+
+    .profile-class {
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 1rem;
+      background: var(--light);
+      border-radius: 12px;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--gray);
+      margin-top: 0.25rem;
+    }
+
+    /* Form Styles */
+    .form-card {
+      background: white;
+      border-radius: var(--card-radius);
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      transition: var(--transition);
+      border: 1px solid var(--gray-light);
+    }
+
+    .form-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--gray-light);
+    }
+
+    .form-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+      margin-right: 1rem;
+    }
+
+    .form-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin: 0;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--gray-light);
+      transition: var(--transition);
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-control.is-valid {
+      border-color: var(--success);
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2310b981' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    }
+
+    .form-control.is-invalid {
+      border-color: var(--danger);
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23ef4444'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6.4.4.4-.4'/%3e%3cpath d='M6 7v1'/%3e%3c/svg%3e");
+    }
+
+    .invalid-feedback {
+      color: var(--danger);
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Password strength indicator */
+    .password-strength {
+      height: 6px;
+      margin-top: 8px;
+      border-radius: 3px;
+      transition: var(--transition);
+      background: var(--gray-light);
+    }
+
+    .strength-weak {
+      width: 25%;
+      background: linear-gradient(90deg, var(--danger), #e11d48);
+    }
+
+    .strength-medium {
+      width: 50%;
+      background: linear-gradient(90deg, var(--warning), #f59e0b);
+    }
+
+    .strength-strong {
+      width: 100%;
+      background: linear-gradient(90deg, var(--success), #10b981);
+    }
+
+    /* Buttons */
+    .btn-save {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border: none;
+      border-radius: 10px;
+      padding: 0.85rem 2rem;
+      font-weight: 600;
+      color: white;
+      transition: var(--transition);
+      width: 100%;
+    }
+
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-save:disabled {
+      background: var(--gray);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-delete {
+      background: var(--danger);
+      border: none;
+      border-radius: 10px;
+      padding: 0.85rem 2rem;
+      font-weight: 600;
+      color: white;
+      transition: var(--transition);
+      width: 100%;
+      margin-top: 1rem;
+    }
+
+    .btn-delete:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(220, 38, 38, 0.3);
+    }
+
+    /* Alerts */
+    .alert {
+      border-radius: 12px;
+      border: none;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      border-left: 4px solid var(--success);
+    }
+
+    .alert-danger {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      border-left: 4px solid var(--danger);
+    }
+
+    /* Loading spinner */
+    .spinner-border-sm {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: 260px;
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .profile-container {
+        grid-template-columns: 1fr;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+    }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--dark);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <h4><i class="fas fa-graduation-cap"></i> SchoolMS</h4>
+    <p>Student Management System</p>
+  </div>
+  <nav>
+    <a href="/student_user/dashboard" class="nav-link">
+      <i class="fas fa-tachometer-alt"></i>Dashboard
+    </a>
+    <a href="/student_user/profile" class="nav-link active">
+      <i class="fas fa-user-circle"></i>Profile
+    </a>
+    <a href="/student_user/attendance" class="nav-link">
+      <i class="fas fa-calendar-check"></i>Attendance
+    </a>
+<!--    <a href="/student_user/courses" class="nav-link">-->
+<!--      <i class="fas fa-book-open"></i>Courses-->
+<!--    </a>-->
+<!--    <a href="/student_user/grades" class="nav-link">-->
+<!--      <i class="fas fa-chart-line"></i>Grades-->
+<!--    </a>-->
+<!--    <a href="/student_user/schedule" class="nav-link">-->
+<!--      <i class="fas fa-calendar-alt"></i>Schedule-->
+<!--    </a>-->
+<!--    <a href="/student_user/settings" class="nav-link">-->
+<!--      <i class="fas fa-cog"></i>Settings-->
+<!--    </a>-->
+  </nav>
+  <div class="sidebar-footer">
+    <p>&copy; 2023 SchoolMS. All rights reserved.</p>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+  <!-- Header -->
+  <div class="top-bar">
+    <button class="menu-toggle" id="menuToggle">
+      <i class="fas fa-bars"></i>
+    </button>
+    <h1>My Profile</h1>
+    <div class="user-info">
+      <div class="user-details">
+        <span class="user-name" th:text="${studentUser.fullName}"></span>
+        <span class="user-role" th:text="${studentUser.className}"></span>
+      </div>
+      <div class="dropdown">
+        <div class="user-avatar" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <span th:text="${studentUser.fullName.substring(0,1)}"></span>
+        </div>
+        <ul class="dropdown-menu dropdown-menu-end p-3 shadow" aria-labelledby="profileDropdown">
+          <li class="text-center mb-2">
+            <div class="user-avatar mx-auto mb-2">
+              <span th:text="${studentUser.fullName.substring(0,1)}"></span>
+            </div>
+            <h6 class="mb-0" th:text="${studentUser.fullName}"></h6>
+            <small class="text-muted d-block" th:text="${studentUser.className}"></small>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <p class="mb-1"><i class="fas fa-envelope me-2"></i>
+              <span th:text="${studentUser.email}"></span>
+            </p>
+            <p class="mb-0"><i class="fas fa-phone me-2"></i>
+              <span th:text="${studentUser.phoneNumber}"></span>
+            </p>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item" href="/student_user/profile">
+              <i class="fas fa-user me-2"></i>My Profile
+            </a>
+<!--            <a class="dropdown-item" href="/student_user/settings">-->
+<!--              <i class="fas fa-cog me-2"></i>Settings-->
+<!--            </a>-->
+            <a class="dropdown-item text-danger" href="/student_user/logout">
+              <i class="fas fa-sign-out-alt me-2"></i>Logout
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+  <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+  <div class="profile-container">
+    <!-- Profile Sidebar -->
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <span th:text="${studentUser.fullName.substring(0,1)}"></span>
+        </div>
+        <h3 class="profile-name" th:text="${studentUser.fullName}"></h3>
+        <div class="profile-class" th:text="${studentUser.className}"></div>
+      </div>
+
+      <div class="mb-3">
+        <div class="d-flex align-items-center mb-2">
+          <i class="fas fa-envelope text-muted me-2"></i>
+          <span th:text="${studentUser.email}"></span>
+        </div>
+        <div class="d-flex align-items-center mb-2">
+          <i class="fas fa-phone text-muted me-2"></i>
+          <span th:text="${studentUser.phoneNumber} ?: 'Not provided'"></span>
+        </div>
+        <div class="d-flex align-items-center">
+          <i class="fas fa-map-marker-alt text-muted me-2"></i>
+          <span th:text="${studentUser.address} ?: 'Address not provided'"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Form -->
+    <div class="form-card">
+      <div class="form-header">
+        <div class="form-icon">
+          <i class="fas fa-edit"></i>
+        </div>
+        <h3 class="form-title">Edit Profile Information</h3>
+      </div>
+
+      <form id="profileForm" th:action="@{/student_user/profile}" th:object="${studentUser}" method="post" novalidate>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">First Name</label>
+            <input type="text" class="form-control" th:field="*{firstName}" id="firstName" required minlength="2" maxlength="50">
+            <div class="invalid-feedback">
+              Please provide a valid first name (2-50 characters).
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Last Name</label>
+            <input type="text" class="form-control" th:field="*{lastName}" id="lastName" required minlength="2" maxlength="50">
+            <div class="invalid-feedback">
+              Please provide a valid last name (2-50 characters).
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-control" th:field="*{email}" id="email" required>
+          <div class="invalid-feedback">
+            Please provide a valid email address.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Phone Number</label>
+          <input type="text" class="form-control" th:field="*{phoneNumber}" id="phoneNumber" pattern="^[\+]?[0-9\s\-\(\)]{10,}$">
+          <div class="invalid-feedback">
+            Please provide a valid phone number.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Address</label>
+          <input type="text" class="form-control" th:field="*{address}" id="address" maxlength="200">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Class</label>
+          <select class="form-select" th:field="*{className}" id="className">
+            <option value="">-- Select Class --</option>
+            <th:block th:each="grade : ${#numbers.sequence(1,13)}">
+              <option th:value="${'Grade ' + grade + 'A'}" th:text="${'Grade ' + grade + 'A'}"></option>
+              <option th:value="${'Grade ' + grade + 'B'}" th:text="${'Grade ' + grade + 'B'}"></option>
+            </th:block>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">New Password (leave blank to keep current)</label>
+          <input type="password" class="form-control" name="password" id="password" placeholder="Enter new password" minlength="8" maxlength="100">
+          <div class="invalid-feedback">
+            Password must be at least 8 characters long.
+          </div>
+          <div class="password-strength" id="passwordStrength"></div>
+          <small class="form-text text-muted">
+            Password must be at least 8 characters and include uppercase, lowercase, numbers, and special characters.
+          </small>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Confirm New Password</label>
+          <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" placeholder="Re-enter new password">
+          <div class="invalid-feedback">
+            Passwords do not match.
+          </div>
+        </div>
+
+        <button type="submit" class="btn-save" id="saveButton">
+          <i class="fas fa-save me-2"></i>Save Changes
+        </button>
+      </form>
+
+      <!-- Delete Account -->
+      <form th:action="@{/student_user/delete}" method="post" onsubmit="return confirmDelete()">
+        <button type="submit" class="btn-delete">
+          <i class="fas fa-trash me-2"></i>Delete Account
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Form validation
+  (function() {
+    'use strict';
+
+    const form = document.getElementById('profileForm');
+    const emailField = document.getElementById('email');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirmPassword');
+    const passwordStrength = document.getElementById('passwordStrength');
+    const saveButton = document.getElementById('saveButton');
+
+    // Mobile menu toggle
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.querySelector('.sidebar');
+
+    if (menuToggle) {
+      menuToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('active');
+      });
+    }
+
+    // Email validation
+    emailField.addEventListener('blur', () => {
+      const v = (emailField.value || '').trim();
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
+      if (v && !re.test(v)) {
+        emailField.classList.add('is-invalid');
+        emailField.classList.remove('is-valid');
+        emailField.setCustomValidity('Please provide a valid email address.');
+      } else {
+        emailField.classList.remove('is-invalid');
+        if (v) emailField.classList.add('is-valid');
+        emailField.setCustomValidity('');
+      }
+    });
+
+    // Password strength checker
+    function checkPasswordStrength(password) {
+      let strength = 0;
+      if (password.length >= 8) strength++;
+      if (/[a-z]/.test(password)) strength++;
+      if (/[A-Z]/.test(password)) strength++;
+      if (/[0-9]/.test(password)) strength++;
+      if (/[^A-Za-z0-9]/.test(password)) strength++;
+      return strength;
+    }
+
+    // Update password strength indicator
+    function updatePasswordStrength() {
+      const strength = checkPasswordStrength(password.value);
+      passwordStrength.className = 'password-strength';
+      if (password.value.length === 0) return;
+      if (strength <= 2) passwordStrength.classList.add('strength-weak');
+      else if (strength <= 4) passwordStrength.classList.add('strength-medium');
+      else passwordStrength.classList.add('strength-strong');
+    }
+
+    // Validate password confirmation
+    function validatePasswordConfirmation() {
+      if (password.value !== confirmPassword.value) {
+        confirmPassword.setCustomValidity('Passwords do not match');
+        confirmPassword.classList.add('is-invalid');
+        return false;
+      } else {
+        confirmPassword.setCustomValidity('');
+        confirmPassword.classList.remove('is-invalid');
+        return true;
+      }
+    }
+
+    // Validate password complexity (optional field)
+    function validatePasswordComplexity() {
+      if (password.value.length > 0 && password.value.length < 8) {
+        password.setCustomValidity('Password must be at least 8 characters long');
+        password.classList.add('is-invalid');
+        return false;
+      } else if (password.value.length > 0) {
+        const strength = checkPasswordStrength(password.value);
+        if (strength < 3) {
+          password.setCustomValidity('Password is too weak. Include uppercase, lowercase, numbers, and special characters.');
+          password.classList.add('is-invalid');
+          return false;
+        } else {
+          password.setCustomValidity('');
+          password.classList.remove('is-invalid');
+          return true;
+        }
+      } else {
+        password.setCustomValidity('');
+        password.classList.remove('is-invalid');
+        return true;
+      }
+    }
+
+    // Events
+    password.addEventListener('input', function() {
+      updatePasswordStrength();
+      validatePasswordComplexity();
+      validatePasswordConfirmation();
+    });
+
+    confirmPassword.addEventListener('input', validatePasswordConfirmation);
+
+    // Phone number validation
+    const phoneField = document.getElementById('phoneNumber');
+    phoneField.addEventListener('blur', () => {
+      const phonePattern = /^[\+]?[0-9\s\-\(\)]{10,}$/;
+      if (phoneField.value && !phonePattern.test(phoneField.value)) {
+        phoneField.classList.add('is-invalid');
+      } else {
+        phoneField.classList.remove('is-invalid');
+        if (phoneField.value) phoneField.classList.add('is-valid');
+      }
+    });
+
+    // Required fields realtime feedback
+    const requiredFields = form.querySelectorAll('input[required]');
+    requiredFields.forEach(field => {
+      field.addEventListener('blur', () => {
+        if (!field.checkValidity()) {
+          field.classList.add('is-invalid');
+        } else {
+          field.classList.remove('is-invalid');
+          field.classList.add('is-valid');
+        }
+      });
+    });
+
+    // Submit handler
+    form.addEventListener('submit', function(event) {
+      // Force validation checks
+      emailField.dispatchEvent(new Event('blur'));
+      phoneField.dispatchEvent(new Event('blur'));
+
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+      } else {
+        if (!validatePasswordComplexity() || !validatePasswordConfirmation()) {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+        saveButton.disabled = true;
+        saveButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
+      }
+      form.classList.add('was-validated');
+    }, false);
+  })();
+
+  function confirmDelete() {
+    return confirm("⚠️ Are you sure you want to delete your account? This action cannot be undone.");
+  }
+</script>
+
+</body>
+</html>
