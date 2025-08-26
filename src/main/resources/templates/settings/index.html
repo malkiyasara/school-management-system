@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Settings</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3">
+            <th:block th:replace="fragments/sidebar :: sidebar"></th:block>
+        </div>
+        <div class="col-9 mt-4">
+            <h2 th:text="${title}">Settings</h2>
+            <p>Basic settings page.</p>
+        </div>
+    </div>
+</div>
+<th:block th:replace="fragments/styles :: common-scripts"></th:block>
+</body>
+</html>
+
