@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Fee</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3">
+            <th:block th:replace="fragments/sidebar :: sidebar"></th:block>
+        </div>
+        <div class="col-9 mt-4">
+            <h2>Add Fee</h2>
+            <form th:action="@{/fees/add}" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Student</label>
+                    <select name="studentId" class="form-select" required>
+                        <option th:each="s : ${students}" th:value="${s.id}" th:text="${s.name}"></option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Amount</label>
+                    <input type="number" name="amount" step="0.01" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="UNPAID">UNPAID</option>
+                        <option value="PARTIAL">PARTIAL</option>
+                        <option value="PAID">PAID</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Due Date</label>
+                    <input type="date" name="dueDate" class="form-control" th:value="${today}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Paid Date</label>
+                    <input type="date" name="paidDate" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control"></textarea>
+                </div>
+                <button class="btn btn-primary" type="submit">Save</button>
+                <a href="/fees" class="btn btn-secondary ms-2">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+<th:block th:replace="fragments/styles :: common-scripts"></th:block>
+</body>
+</html>
+

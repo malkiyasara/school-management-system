@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>School Management Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --dark-bg: #1a1a1a;
+            --dark-card: #2d2d2d;
+            --dark-text: #ffffff;
+            --dark-text-secondary: #b0b0b0;
+            --dark-border: #404040;
+            --dark-hover: #3d3d3d;
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #4CAF50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --info-color: #2196F3;
+        }
+
+        body {
+            background: var(--dark-bg);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark-text);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 280px;
+            background: var(--dark-card);
+            border-right: 1px solid var(--dark-border);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--dark-border);
+            text-align: center;
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-subtitle {
+            color: var(--dark-text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            margin: 0.25rem 1rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: var(--dark-text-secondary);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--dark-hover);
+            color: var(--dark-text);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .nav-icon {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--dark-border);
+            text-align: center;
+            color: var(--dark-text-secondary);
+            font-size: 0.8rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem 0;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin: 0;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            color: var(--dark-text);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--dark-hover);
+        }
+
+        /* Cards */
+        .dashboard-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary-color);
+        }
+
+        .card-title {
+            color: var(--dark-text);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-description {
+            color: var(--dark-text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--dark-text-secondary);
+            font-weight: 500;
+        }
+
+        /* Buttons */
+        .btn-dashboard {
+            border-radius: 25px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+            margin: 0.25rem;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-dashboard:hover {
+            transform: translateY(-2px);
+        }
+
+        .quick-action-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .quick-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+
+        .sidebar-toggle {
+            display: none;
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            color: var(--dark-text);
+            padding: 0.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Section Headers */
+        .section-header {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            color: var(--dark-text);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            color: var(--dark-text-secondary);
+        }
+
+        /* Light Theme Overrides */
+        body.light-theme {
+            --dark-bg: #f8f9fa;
+            --dark-card: #ffffff;
+            --dark-text: #2c3e50;
+            --dark-text-secondary: #6c757d;
+            --dark-border: #dee2e6;
+            --dark-hover: #e9ecef;
+        }
+
+        body.light-theme .sidebar {
+            background: #ffffff;
+            border-right: 1px solid #dee2e6;
+        }
+
+        body.light-theme .dashboard-card {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-theme .dashboard-card:hover {
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-graduation-cap me-2"></i>
+                SchoolMS
+            </div>
+            <div class="sidebar-subtitle">Management System</div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="/" class="nav-link active">
+                    <i class="fas fa-tachometer-alt nav-icon"></i>
+                    Dashboard
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="/students" class="nav-link">
+                    <i class="fas fa-user-graduate nav-icon"></i>
+                    Students
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="/exams" class="nav-link">
+                    <i class="fas fa-file-alt nav-icon"></i>
+                    Exams
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="/marks" class="nav-link">
+                    <i class="fas fa-chart-line nav-icon"></i>
+                    Marks
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="/reports" class="nav-link">
+                    <i class="fas fa-chart-pie nav-icon"></i>
+                    Reports
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="/attendance" class="nav-link">
+                    <i class="fas fa-calendar-check nav-icon"></i>
+                    Attendance
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/settings" class="nav-link">
+                    <i class="fas fa-cog nav-icon"></i>
+                    Settings
+                </a>
+            </div>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <p>© 2024 SchoolMS</p>
+            <p>v2.0 Dashboard</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <h1 class="page-title">
+                    <i class="fas fa-tachometer-alt me-3"></i>
+                    Dashboard
+                </h1>
+                <p class="section-subtitle">Welcome to your School Management System</p>
+            </div>
+            
+            <div class="user-menu">
+                <span class="text-light me-3">
+                    <i class="fas fa-user me-2"></i>
+                    Welcome, <strong th:text="${fullName}">User</strong>
+                    <small class="text-muted ms-2" th:text="'(' + ${userRole} + ')'">(Role)</small>
+                </span>
+                <a href="/logout" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon me-2"></i>
+                    Dark Mode
+                </button>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-chart-bar me-2"></i>
+                System Overview
+            </h2>
+            <p class="section-subtitle">Key metrics and statistics</p>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="dashboard-card text-center">
+                    <i class="fas fa-user-graduate fa-3x text-primary mb-3"></i>
+                    <div class="stat-number">150+</div>
+                    <div class="stat-label">Students</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dashboard-card text-center">
+                    <i class="fas fa-file-alt fa-3x text-warning mb-3"></i>
+                    <div class="stat-number">25+</div>
+                    <div class="stat-label">Exams</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dashboard-card text-center">
+                    <i class="fas fa-users fa-3x text-info mb-3"></i>
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Classes</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dashboard-card text-center">
+                    <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
+                    <div class="stat-number">95%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Management Modules -->
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-cogs me-2"></i>
+                Management Modules
+            </h2>
+            <p class="section-subtitle">Access all management features</p>
+        </div>
+        
+        <div class="row">
+            <!-- Student Management -->
+            <div class="col-lg-4 col-md-6">
+                <div class="dashboard-card text-center">
+                    <i class="fas fa-user-graduate fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Student Management</h5>
+                    <p class="card-description">
+                        Manage student profiles, class assignments, and personal information. 
+                        Track enrollment and student progress.
+                    </p>
+                    <div class="d-flex flex-column">
+                        <a href="/students" class="btn btn-primary btn-dashboard mb-2">
+                            <i class="fas fa-list me-2"></i>View All Students
+                        </a>
+                        <a href="/students/add" class="btn btn-success btn-dashboard">
+                            <i class="fas fa-plus me-2"></i>Add New Student
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Management -->
+            <div class="col-lg-4 col-md-6">
+                <div class="dashboard-card text-center">
+                    <i class="fas fa-file-alt fa-3x text-warning mb-3"></i>
+                    <h5 class="card-title">Exam Management</h5>
+                    <p class="card-description">
+                        Create and schedule exams by subject and class. 
+                        Set exam dates, total marks, and exam descriptions.
+                    </p>
+                    <div class="d-flex flex-column">
+                        <a href="/exams" class="btn btn-warning btn-dashboard mb-2">
+                            <i class="fas fa-list me-2"></i>View All Exams
+                        </a>
+                        <a href="/exams/add" class="btn btn-success btn-dashboard">
+                            <i class="fas fa-plus me-2"></i>Create New Exam
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Marks Management -->
+            <div class="col-lg-4 col-md-6">
+                <div class="dashboard-card text-center">
+                    <i class="fas fa-chart-line fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">Marks Management</h5>
+                    <p class="card-description">
+                        Record and analyze student performance. 
+                        Generate reports and track academic progress.
+                    </p>
+                    <div class="d-flex flex-column">
+                        <a href="/marks" class="btn btn-info btn-dashboard mb-2">
+                            <i class="fas fa-list me-2"></i>View All Marks
+                        </a>
+                        <a href="/marks/add" class="btn btn-success btn-dashboard">
+                            <i class="fas fa-plus me-2"></i>Add New Marks
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports & Analytics -->
+            <div class="col-lg-4 col-md-6">
+                <div class="dashboard-card text-center">
+                    <i class="fas fa-chart-pie fa-3x text-danger mb-3"></i>
+                    <h5 class="card-title">Reports & Analytics</h5>
+                    <p class="card-description">
+                        Generate comprehensive reports on student performance, 
+                        class statistics, and academic trends.
+                    </p>
+                    <div class="d-flex flex-column">
+                        <a href="/reports" class="btn btn-danger btn-dashboard mb-2">
+                            <i class="fas fa-chart-bar me-2"></i>View Reports
+                        </a>
+                        <a href="/reports/performance" class="btn btn-secondary btn-dashboard">
+                            <i class="fas fa-chart-line me-2"></i>Performance
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Management -->
+            <div class="col-lg-4 col-md-6">
+                <div class="dashboard-card text-center">
+                    <i class="fas fa-calendar-check fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Attendance Management</h5>
+                    <p class="card-description">
+                        Track student attendance, manage class schedules, 
+                        and monitor attendance patterns.
+                    </p>
+                    <div class="d-flex flex-column">
+                        <a href="/attendance" class="btn btn-success btn-dashboard mb-2">
+                            <i class="fas fa-calendar me-2"></i>View Attendance
+                        </a>
+                        <a href="/attendance/mark" class="btn btn-primary btn-dashboard">
+                            <i class="fas fa-check me-2"></i>Mark Attendance
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- Quick Actions Section -->
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-bolt me-2"></i>
+                Quick Actions
+            </h2>
+            <p class="section-subtitle">Frequently used operations</p>
+        </div>
+        
+        <div class="dashboard-card text-center">
+            <div class="d-flex flex-wrap justify-content-center">
+                <a href="/students/add" class="quick-action-btn">
+                    <i class="fas fa-user-plus me-2"></i>Add Student
+                </a>
+                <a href="/exams/add" class="quick-action-btn">
+                    <i class="fas fa-file-plus me-2"></i>Create Exam
+                </a>
+                <a href="/marks/add" class="quick-action-btn">
+                    <i class="fas fa-plus-circle me-2"></i>Record Marks
+                </a>
+                <a href="/reports" class="quick-action-btn">
+                    <i class="fas fa-chart-line me-2"></i>View Reports
+                </a>
+                <a href="/settings" class="quick-action-btn">
+                    <i class="fas fa-cog me-2"></i>Settings
+                </a>
+                <a href="/help" class="quick-action-btn">
+                    <i class="fas fa-question-circle me-2"></i>Help
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar toggle for mobile
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Theme toggle functionality
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.querySelector('.theme-toggle');
+            
+            if (body.classList.contains('light-theme')) {
+                body.classList.remove('light-theme');
+                themeToggle.innerHTML = '<i class="fas fa-moon me-2"></i>Dark Mode';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.add('light-theme');
+                themeToggle.innerHTML = '<i class="fas fa-sun me-2"></i>Light Mode';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Load saved theme
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeToggle = document.querySelector('.theme-toggle');
+            
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-theme');
+                themeToggle.innerHTML = '<i class="fas fa-sun me-2"></i>Light Mode';
+            }
+        });
+
+        // Active navigation highlighting
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
+</html> 

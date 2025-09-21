@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Fee</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3">
+            <th:block th:replace="fragments/sidebar :: sidebar"></th:block>
+        </div>
+        <div class="col-9 mt-4">
+            <h2>Edit Fee</h2>
+            <form th:action="@{'/fees/edit/' + ${fee.id}}" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Student</label>
+                    <select name="studentId" class="form-select" required>
+                        <option th:each="s : ${students}" th:value="${s.id}" th:selected="${fee.student != null && s.id == fee.student.id}" th:text="${s.name}"></option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Amount</label>
+                    <input type="number" name="amount" step="0.01" class="form-control" th:value="${fee.amount}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="UNPAID" th:selected="${fee.status == 'UNPAID'}">UNPAID</option>
+                        <option value="PARTIAL" th:selected="${fee.status == 'PARTIAL'}">PARTIAL</option>
+                        <option value="PAID" th:selected="${fee.status == 'PAID'}">PAID</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Due Date</label>
+                    <input type="date" name="dueDate" class="form-control" th:value="${fee.dueDate}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Paid Date</label>
+                    <input type="date" name="paidDate" class="form-control" th:value="${fee.paidDate}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control" th:text="${fee.description}"></textarea>
+                </div>
+                <button class="btn btn-primary" type="submit">Update</button>
+                <a href="/fees" class="btn btn-secondary ms-2">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+<th:block th:replace="fragments/styles :: common-scripts"></th:block>
+</body>
+</html>
+
