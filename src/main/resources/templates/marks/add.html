@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Mark - SchoolMS</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <h1 class="page-title">
+                    <i class="fas fa-plus-circle me-3"></i>
+                    Add New Mark
+                </h1>
+                <p class="section-subtitle">Record student performance for an exam</p>
+            </div>
+            
+            <div class="user-menu">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon me-2"></i>
+                    Dark Mode
+                </button>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <h3 class="card-title mb-4">
+                <i class="fas fa-chart-line me-2"></i>
+                Mark Details
+            </h3>
+            
+            <form th:action="@{/marks/add}" method="post">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="studentId" class="form-label">
+                                <i class="fas fa-user-graduate me-2"></i>Student:
+                            </label>
+                            <select class="form-control" id="studentId" name="studentId" required>
+                                <option value="">Select Student</option>
+                                <option th:each="student : ${students}" 
+                                        th:value="${student.id}" 
+                                        th:text="${student.name + ' - Class: ' + student.className}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="examId" class="form-label">
+                                <i class="fas fa-file-alt me-2"></i>Exam:
+                            </label>
+                            <select class="form-control" id="examId" name="examId" required>
+                                <option value="">Select Exam</option>
+                                <option th:each="exam : ${exams}" 
+                                        th:value="${exam.id}" 
+                                        th:text="${exam.examName + ' - ' + exam.subject + ' (' + exam.className + ')'}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="obtainedMarks" class="form-label">
+                                <i class="fas fa-trophy me-2"></i>Obtained Marks:
+                            </label>
+                            <input type="number" class="form-control" id="obtainedMarks" name="obtainedMarks" required 
+                                   placeholder="Enter obtained marks" min="0">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="remarks" class="form-label">
+                                <i class="fas fa-comment me-2"></i>Remarks:
+                            </label>
+                            <textarea class="form-control" id="remarks" name="remarks" rows="3" 
+                                      placeholder="Enter any remarks or comments (optional)"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary btn-dashboard">
+                        <i class="fas fa-save me-2"></i>Save Mark
+                    </button>
+                    <a href="/marks" class="btn btn-secondary btn-dashboard">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <th:block th:replace="fragments/styles :: common-scripts"></th:block>
+</body>
+</html> 
