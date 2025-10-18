@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Footer Styles -->
+    <style>
+        .portal-footer {
+            background: var(--dark-card);
+            border-top: 3px solid var(--accent-color);
+            padding: 2rem 0;
+            margin-top: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .portal-footer .footer-section h6 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .portal-footer .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+
+        .portal-footer .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .portal-footer .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .portal-footer .footer-links a:hover {
+            color: var(--accent-color);
+        }
+
+        .portal-footer .school-logo {
+            width: 50px;
+            height: 50px;
+            background: var(--accent-color);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+
+        .portal-footer .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .portal-footer .social-link {
+            width: 35px;
+            height: 35px;
+            background: var(--card-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+        }
+
+        .portal-footer .social-link:hover {
+            background: var(--accent-color);
+            color: #fff;
+            transform: translateY(-3px);
+        }
+
+        .portal-footer .copyright-section {
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+        }
+
+        .portal-footer .copyright-text {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-toggle:hover {
+            background: var(--accent-color);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Fragment -->
+    <th:block th:fragment="portal-header">
+        <header class="py-3" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: #fff;">
+            <div class="container d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-school me-2"></i>
+                    <strong>SchoolMS Parent Portal</strong>
+                </div>
+                <nav>
+                    <a href="/portal" class="text-white text-decoration-none me-3">Home</a>
+                    <a href="/portal" class="text-white text-decoration-none">Lookup</a>
+                </nav>
+            </div>
+        </header>
+    </th:block>
+
+    <!-- Footer Fragment -->
+    <th:block th:fragment="portal-footer">
+        <footer class="portal-footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="row">
+                        <!-- School Info -->
+                        <div class="col-lg-4 col-md-6 footer-section">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="school-logo">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <div class="school-info">
+                                    <h5 class="mb-0" style="color: var(--text-primary);">SchoolMS</h5>
+                                    <small style="color: var(--text-muted);">Management System</small>
+                                </div>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6;">
+                                Empowering education through innovative technology solutions for modern schools and institutions.
+                            </p>
+                        </div>
+
+                        <!-- Quick Links -->
+                        <div class="col-lg-2 col-md-6 footer-section">
+                            <h6>Quick Links</h6>
+                            <ul class="footer-links">
+                                <li><a href="/portal"><i class="fas fa-home"></i>Portal Home</a></li>
+                                <li><a href="/"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+                                <li><a href="/students"><i class="fas fa-users"></i>Students</a></li>
+                                <li><a href="/class-teachers"><i class="fas fa-chalkboard-teacher"></i>Teachers</a></li>
+                                <li><a href="/exams"><i class="fas fa-book"></i>Exams</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Resources -->
+                        <div class="col-lg-2 col-md-6 footer-section">
+                            <h6>Resources</h6>
+                            <ul class="footer-links">
+                                <li><a href="/portal"><i class="fas fa-question-circle"></i>Help Center</a></li>
+                                <li><a href="/portal"><i class="fas fa-file-alt"></i>Documentation</a></li>
+                                <li><a href="/portal"><i class="fas fa-headset"></i>Support</a></li>
+                                <li><a href="/portal"><i class="fas fa-bell"></i>Updates</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Contact & Settings -->
+                        <div class="col-lg-4 col-md-6 footer-section">
+                            <h6>Settings & Contact</h6>
+                            <div class="mb-3">
+                                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                                    <i class="fas fa-moon me-2"></i>
+                                    <span class="theme-text">Dark Mode</span>
+                                </button>
+                            </div>
+                            <div class="social-links">
+                                <a href="#" class="social-link" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                                <a href="#" class="social-link" title="Twitter"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="social-link" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                                <a href="#" class="social-link" title="Email"><i class="fas fa-envelope"></i></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Copyright -->
+                    <div class="copyright-section">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                            <p class="copyright-text">
+                                © <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2024</span> SchoolMS. All rights reserved.
+                            </p>
+                            <div class="d-flex gap-3 mt-2 mt-md-0">
+                                <a href="/portal" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">Privacy Policy</a>
+                                <a href="/portal" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">Terms of Service</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </th:block>
+</body>
+</html>

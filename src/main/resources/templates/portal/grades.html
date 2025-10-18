@@ -1,0 +1,234 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Grades - Parent Portal</title>
+        <th:block th:replace="fragments/styles :: common-styles"></th:block>
+
+        <!-- Extra Styles -->
+        <style>
+            /* Footer Styles */
+            .portal-footer {
+                background: var(--dark-card, #1e1e2f);
+                border-top: 3px solid var(--accent-color, #4e9eff);
+                padding: 30px 20px;
+                margin-top: 50px;
+                color: var(--text-light, #ddd);
+                font-size: 14px;
+            }
+            .portal-footer .footer-container {
+                max-width: 1100px;
+                margin: auto;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 20px;
+            }
+            .portal-footer h5 {
+                color: var(--accent-color, #4e9eff);
+                margin-bottom: 12px;
+                font-size: 16px;
+            }
+            .portal-footer a {
+                color: var(--text-light, #ddd);
+                text-decoration: none;
+                display: block;
+                margin: 6px 0;
+                transition: color 0.3s;
+            }
+            .portal-footer a:hover {
+                color: var(--accent-color, #4e9eff);
+            }
+            .portal-footer .footer-bottom {
+                text-align: center;
+                margin-top: 25px;
+                font-size: 13px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                padding-top: 15px;
+                color: #aaa;
+            }
+
+            /* Cards */
+            .dashboard-card {
+                background: var(--card-bg, #2a2a3d);
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            }
+            .summary-cards {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+            .summary-card {
+                background: var(--dark-card, #22223a);
+                padding: 18px;
+                border-radius: 8px;
+                text-align: center;
+                color: #fff;
+            }
+            .summary-card h3 {
+                margin: 0;
+                font-size: 28px;
+                color: var(--accent-color, #4e9eff);
+            }
+            .summary-card p {
+                margin: 5px 0 0;
+                font-size: 14px;
+                color: #aaa;
+            }
+
+            /* Table */
+            .table th {
+                background: var(--accent-color, #4e9eff);
+                color: #fff;
+                font-weight: 600;
+            }
+            .table td {
+                color: var(--text-light, #ddd);
+            }
+            .card-title {
+                color: var(--accent-color, #4e9eff);
+            }
+
+            /* Marks coloring */
+            .mark-high {
+                color: #4caf50;
+                font-weight: bold;
+            }
+            .mark-medium {
+                color: #ffc107;
+                font-weight: bold;
+            }
+            .mark-low {
+                color: #f44336;
+                font-weight: bold;
+            }
+
+            /* Progress bar */
+            .progress {
+                background: #333;
+                border-radius: 20px;
+                height: 10px;
+                margin-top: 5px;
+            }
+            .progress-bar {
+                height: 10px;
+                border-radius: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Header -->
+        <th:block th:replace="portal/fragments :: portal-header"></th:block>
+
+        <!-- Page Content -->
+        <div class="container" style="max-width: 1000px; margin: 6vh auto">
+            <!-- Search Student -->
+            <div class="d-flex justify-content-end align-items-center mb-3">
+                <!-- Search removed: child details load automatically for the logged-in parent -->
+                <div th:if="${student}" class="ms-auto">
+                    <a
+                        th:href="@{'/portal/report/download'(studentId=${student.id})}"
+                        class="btn btn-success"
+                    >
+                        <i class="fas fa-download me-1"></i> Download Report
+                    </a>
+                </div>
+            </div>
+
+            <div th:if="${student}">
+                <div
+                    class="d-flex justify-content-between align-items-center mb-2"
+                >
+                    <h4 class="card-title mb-0" th:text="${student.name}"></h4>
+                    <div
+                        class="text-muted"
+                        th:text="'Class: ' + ${student.className}"
+                    ></div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h3 th:text="${marks != null ? marks.size() : 0}"></h3>
+                        <p>Total Exams</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3
+                            th:text="${#numbers.formatDecimal(avgPercentage, 1, 'COMMA', 2, 'POINT')} + '%'"
+                        ></h3>
+                        <p>Average %</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3 th:text="${highestMarks}"></h3>
+                        <p>Highest Marks</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3 th:text="${lowestMarks}"></h3>
+                        <p>Lowest Marks</p>
+                    </div>
+                </div>
+
+                <!-- Marks Table -->
+                <div class="dashboard-card">
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Exam</th>
+                                    <th>Subject</th>
+                                    <th>Total</th>
+                                    <th>Marks</th>
+                                    <th>%</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="m : ${marks}">
+                                    <td
+                                        th:text="${m.exam != null ? m.exam.examName : '—'}"
+                                    ></td>
+                                    <td
+                                        th:text="${m.exam != null ? m.exam.subject : '—'}"
+                                    ></td>
+                                    <td
+                                        th:text="${m.exam != null ? m.exam.totalMarks : 0}"
+                                    ></td>
+                                    <td
+                                        th:text="${m.obtainedMarks}"
+                                        th:classappend="${m.percentage >= 75 ? 'mark-high' : (m.percentage >= 50 ? 'mark-medium' : 'mark-low')}"
+                                    ></td>
+                                    <td>
+                                        <span
+                                            th:text="${#numbers.formatDecimal(m.percentage, 1, 'COMMA', 2, 'POINT')} + '%'"
+                                        ></span>
+                                        <div class="progress">
+                                            <div
+                                                class="progress-bar"
+                                                th:style="'width:' + ${m.percentage} + '%; background:' + (${m.percentage >= 75 ? '#4CAF50' : (m.percentage >= 50 ? '#FFC107' : '#F44336')})"
+                                            ></div>
+                                        </div>
+                                    </td>
+                                    <td th:text="${m.remarks}"></td>
+                                </tr>
+                                <tr th:if="${marks == null or marks.isEmpty()}">
+                                    <td
+                                        colspan="6"
+                                        class="text-center text-muted py-3"
+                                    >
+                                        No marks found
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <th:block th:replace="portal/fragments :: portal-footer"></th:block>
+
+        <!-- Scripts -->
+        <th:block th:replace="fragments/styles :: common-scripts"></th:block>
+    </body>
+</html>

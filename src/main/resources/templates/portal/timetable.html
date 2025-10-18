@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Timetable - Parent Portal</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+</head>
+<body>
+<th:block th:replace="portal/fragments :: portal-header"></th:block>
+<div class="container" style="max-width: 1000px; margin: 6vh auto;">
+    <div class="dashboard-card mb-3">
+        <form method="get">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Class Name</label>
+                    <input class="form-control" name="className" placeholder="e.g., Grade 10 A">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100" type="submit">Load</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div th:if="${className}">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h4 class="card-title mb-0" th:text="'Class: ' + ${className}"></h4>
+        </div>
+        <div class="dashboard-card">
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead><tr><th>Exam</th><th>Subject</th><th>Date</th><th>Total Marks</th></tr></thead>
+                    <tbody>
+                        <tr th:each="e : ${exams}">
+                            <td th:text="${e.examName}"></td>
+                            <td th:text="${e.subject}"></td>
+                            <td th:text="${e.examDate}"></td>
+                            <td th:text="${e.totalMarks}"></td>
+                        </tr>
+                        <tr th:if="${exams == null or exams.isEmpty()}"><td colspan="4" class="text-center text-muted py-3">No entries</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="portal/fragments :: portal-footer"></th:block>
+<th:block th:replace="fragments/styles :: common-scripts"></th:block>
+</body>
+</html>
+

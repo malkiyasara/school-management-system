@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Student Marks - Parent Portal</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+    <style>
+        /* Enhanced Portal Footer Styles */
+        :root {
+            --primary-color: #592ebc;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --dark-card: #1a1a1a;
+            --dark-border: #333;
+            --light-card: #ffffff;
+            --light-border: #e0e0e0;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --text-muted: #ffffff;
+            --hover-color: #2980b9;
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="dark"] {
+            --dark-card: #592ebc;
+            --dark-border: #333;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --text-muted: #2c0a7a;
+        }
+
+        [data-theme="light"] {
+            --dark-card: var(--light-card);
+            --dark-border: var(--light-border);
+            --text-primary: #333;
+            --text-secondary: #666;
+            --text-muted: #501eac;
+        }
+
+        .portal-footer {
+            background: var(--dark-card);
+            border-top: 3px solid var(--accent-color);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            margin-top: auto;
+        }
+
+        .portal-footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                var(--accent-color) 20%, 
+                var(--accent-color) 80%, 
+                transparent 100%);
+        }
+
+        .footer-content {
+            padding: 2rem 0 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-section h6 {
+            color: var(--accent-color);
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+        }
+
+        .footer-section h6::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 30px;
+            height: 2px;
+            background: var(--accent-color);
+            border-radius: 1px;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all var(--transition-speed) ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-color);
+            transform: translateX(5px);
+        }
+
+        .footer-links a i {
+            width: 16px;
+            text-align: center;
+            opacity: 0.7;
+        }
+
+        .theme-toggle {
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--hover-color) 100%);
+            border: none;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .theme-toggle:hover::before {
+            left: 100%;
+        }
+
+        .theme-toggle:active {
+            transform: translateY(0);
+        }
+
+        .copyright-section {
+            border-top: 1px solid var(--dark-border);
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .copyright-text {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .school-info {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .school-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-color), var(--hover-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-right: 1rem;
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .social-link {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: rgba(52, 152, 219, 0.1);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: all var(--transition-speed) ease;
+            font-size: 0.9rem;
+        }
+
+        .social-link:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                text-align: center;
+            }
+            
+            .footer-section {
+                margin-bottom: 2rem;
+            }
+            
+            .theme-toggle {
+                margin-top: 1rem;
+            }
+            
+            .social-links {
+                justify-content: center;
+                margin-top: 1rem;
+            }
+        }
+
+        /* Animation for theme transition */
+        * {
+            transition: background-color var(--transition-speed) ease, 
+                       color var(--transition-speed) ease,
+                       border-color var(--transition-speed) ease;
+        }
+    </style>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+</head>
+<body>
+<th:block th:replace="portal/fragments :: portal-header"></th:block>
+<div class="container" style="max-width: 1000px; margin: 6vh auto;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="card-title mb-0"><i class="fas fa-user-graduate me-2"></i><span th:text="${student.name}"></span></h2>
+        <div class="d-flex gap-2">
+            <a th:href="@{'/portal/report/download'(studentId=${student.id})}" class="btn btn-success">
+                <i class="fas fa-download me-1"></i> Download Report
+            </a>
+            <a href="/portal" class="btn btn-secondary">Back</a>
+        </div>
+    </div>
+    <div class="dashboard-card">
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <div class="dashboard-card" style="padding:1rem">
+                    <div class="stat-label">Total Exams</div>
+                    <div class="stat-number" th:text="${marks != null ? marks.size() : 0}"></div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dashboard-card" style="padding:1rem">
+                    <div class="stat-label">Average %</div>
+                    <div class="stat-number" th:text="${#numbers.formatDecimal(avgPercentage, 1, 'COMMA', 2, 'POINT')}"></div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dashboard-card" style="padding:1rem">
+                    <div class="stat-label">Highest %</div>
+                    <div class="stat-number" th:text="${#numbers.formatDecimal(maxPercentage, 1, 'COMMA', 2, 'POINT')}"></div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dashboard-card" style="padding:1rem">
+                    <div class="stat-label">Lowest %</div>
+                    <div class="stat-number" th:text="${#numbers.formatDecimal(minPercentage, 1, 'COMMA', 2, 'POINT')}"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4"><strong>Student ID:</strong> <span th:text="${student.id}"></span></div>
+            <div class="col-md-4"><strong>Class:</strong> <span th:text="${student.className}"></span></div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>Exam</th>
+                        <th>Subject</th>
+                        <th>Total</th>
+                        <th>Marks</th>
+                        <th>Percentage</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="m : ${marks}">
+                        <td th:text="${m.exam != null ? m.exam.examName : '—'}"></td>
+                        <td th:text="${m.exam != null ? m.exam.subject : '—'}"></td>
+                        <td th:text="${m.exam != null ? m.exam.totalMarks : 0}"></td>
+                        <td th:text="${m.obtainedMarks}"></td>
+                        <td th:text="${#numbers.formatDecimal(m.percentage, 1, 'COMMA', 2, 'POINT')} + '%' "></td>
+                        <td th:text="${m.remarks}"></td>
+                    </tr>
+                    <tr th:if="${marks == null or marks.isEmpty()}">
+                        <td colspan="6" class="text-center text-muted py-3">No marks found</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-end mt-3">
+            <button class="btn btn-outline-secondary" onclick="window.print()"><i class="fas fa-print me-1"></i>Print</button>
+        </div>
+    </div>
+
+    <!-- Fees Section -->
+    <div class="dashboard-card mt-4">
+        <h4 class="card-title mb-3"><i class="fas fa-money-bill-wave me-2"></i>Fee Records</h4>
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>Fee ID</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Due Date</th>
+                        <th>Paid Date</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="fee : ${fees}">
+                        <td th:text="${fee.id}"></td>
+                        <td th:text="${#numbers.formatDecimal(fee.amount, 1, 'COMMA', 2, 'POINT')}"></td>
+                        <td>
+                            <span th:if="${fee.status == 'PAID'}" class="badge bg-success">PAID</span>
+                            <span th:if="${fee.status == 'UNPAID'}" class="badge bg-danger">UNPAID</span>
+                            <span th:if="${fee.status == 'PARTIAL'}" class="badge bg-warning text-dark">PARTIAL</span>
+                        </td>
+                        <td th:text="${fee.dueDate}"></td>
+                        <td th:text="${fee.paidDate}"></td>
+                        <td th:text="${fee.description}"></td>
+                    </tr>
+                    <tr th:if="${fees == null or fees.isEmpty()}">
+                        <td colspan="6" class="text-center text-muted py-3">No fee records found</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </div>
+<th:block th:replace="portal/fragments :: portal-footer"></th:block>
+<div></div>
+<th:block th:replace="fragments/styles :: common-scripts"></th:block>
+</body>
+</html>
+
