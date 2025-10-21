@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Level - SchoolMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --warning-color: #f8961e;
+            --danger-color: #f72585;
+            --dark-card: #f8f9fa;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --light-bg: #ffffff;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fb;
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-content {
+            margin-left: 0;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 5px;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .user-menu {
+            display: flex;
+            gap: 15px;
+        }
+
+        .theme-toggle, .sidebar-toggle {
+            background: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 15px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover, .sidebar-toggle:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .level-grid {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .level-card {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            text-align: center;
+            padding: 30px 20px;
+            background-color: var(--light-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .level-card.active {
+            border-color: var(--primary-color);
+        }
+
+        .level-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .level-card h4 {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .level-card .text-muted {
+            margin-bottom: 25px;
+        }
+
+        /* Enhanced teacher information styles */
+        .teacher-section {
+            margin-top: 1.5rem;
+            text-align: left;
+        }
+
+        .head-teacher-card {
+            background: rgba(67, 97, 238, 0.08);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-color);
+            color: var(--text-color); /* Ensuring text is visible */
+        }
+
+        .head-teacher-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .head-teacher-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+
+        .head-teacher-email {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .grade-teachers-section {
+            margin-top: 15px;
+        }
+
+        .grade-teachers-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .grade-teacher-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .grade-teacher-item:last-child {
+            border-bottom: none;
+        }
+
+        .grade-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 26px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .teacher-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Color coding for levels */
+        .primary-level .level-icon { color: #0d8826; }
+        .primary-level .head-teacher-card { border-left-color: #4cc9f0; }
+        .primary-level .head-teacher-title { color: rgba(4, 3, 3, 0.7); }
+        .primary-level .grade-badge { background-color: #592ebc; }
+
+        .secondary-level .level-icon { color: #f8961e; }
+        .secondary-level .head-teacher-card { border-left-color: rgb(248, 150, 30); }
+        .secondary-level .head-teacher-title { color: rgba(4, 3, 3, 0.7); }
+        .secondary-level .grade-badge { background-color: #592ebc; }
+
+        .advanced-level .level-icon { color: #f72585; }
+        .advanced-level .head-teacher-card { border-left-color: rgb(247, 37, 133); }
+        .advanced-level .head-teacher-title { color: rgba(4, 3, 3, 0.7); }
+        .advanced-level .grade-badge { background-color: #592ebc; }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 15px;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .user-menu {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <i class="fas fa-graduation-cap me-2"></i>
+            SchoolMS
+        </div>
+        <div class="sidebar-subtitle">Management System</div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-item">
+            <a href="/" class="nav-link">
+                <i class="fas fa-tachometer-alt nav-icon"></i>
+                Dashboard
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/students" class="nav-link active">
+                <i class="fas fa-user-graduate nav-icon"></i>
+                Students
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/exams" class="nav-link">
+                <i class="fas fa-file-alt nav-icon"></i>
+                Exams
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/marks" class="nav-link">
+                <i class="fas fa-chart-line nav-icon"></i>
+                Marks
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/reports" class="nav-link">
+                <i class="fas fa-chart-pie nav-icon"></i>
+                Reports
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/attendance" class="nav-link">
+                <i class="fas fa-calendar-check nav-icon"></i>
+                Attendance
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="/settings" class="nav-link">
+                <i class="fas fa-cog nav-icon"></i>
+                Settings
+            </a>
+        </div>
+    </nav>
+
+    <div class="sidebar-footer">
+        <p>© 2024 SchoolMS</p>
+        <p>v2.0 Dashboard</p>
+    </div>
+</div>
+
+<!-- Main content -->
+<div class="main-content">
+    <div class="top-bar">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-user-graduate nav-icon"></i>
+                Student Management
+            </h1>
+            <p class="section-subtitle">Welcome to your School Management System</p>
+        </div>
+
+        <div class="user-menu">
+                <span class="text-light me-3">
+                    <i class="fas fa-user me-2"></i>
+                    Welcome, <strong th:text="${fullName}">User</strong>
+                </span>
+            <a href="/logout" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout
+            </a>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </div>
+    <div class="container level-grid">
+        <div class="row g-4">
+            <!-- Primary Section -->
+            <div class="col-md-4">
+                <div class="level-card primary-level" data-min="1" data-max="5">
+                    <div class="level-icon"><i class="fa-solid fa-seedling"></i></div>
+                    <h4 class="mb-1">Primary</h4>
+                    <p class="text-muted mb-3">Grades 1 – 5</p>
+
+                    <div class="teacher-section">
+                        <!-- Head Teacher Card -->
+                        <div class="head-teacher-card">
+                            <div class="head-teacher-title">Head Teacher</div>
+                            <div class="head-teacher-name">Mrs. N. Perera</div>
+                            <div class="head-teacher-email">n.perera@school.lk</div>
+                        </div>
+
+                        <!-- Grade Teachers -->
+                        <div class="grade-teachers-section">
+                            <div class="grade-teachers-title">Grade Teachers</div>
+                            <div class="grade-teacher-item">
+                                <span class="grade-badge">G1</span>
+                                <span class="teacher-name">Ms. R. Silva</span>
+                            </div>
+                            <div class="grade-teacher-item">
+                                <span class="grade-badge">G2</span>
+                                <span class="teacher-name">Mr. K. Fernando</span>
+                            </div>
+                            <div class="grade-teacher-item">
+                                <span class="grade-badge">G3</span>
+                                <span class="teacher-name">Ms. I. Jayasuriya</span>
+                            </div>
+                            <div class="grade-teacher-item">
+                                <span class="grade-badge">G4</span>
+                                <span class="teacher-name">Mr. A. Dissanayake</span>
+                            </div>
+                            <div class="grade-teacher-item">
+                                <span class="grade-badge">G5</span>
+                                <span class="teacher-name">Ms. T. Gunasekara</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Secondary Section -->
+            <div class="col-md-4">
+                <div class="level-card secondary-level" data-min="6" data-max="11">
+                    <div class="level-icon"><i class="fa-solid fa-book"></i></div>
+                    <h4 class="mb-1">Secondary</h4>
+                    <p class="text-muted mb-3">Grades 6 – 11</p>
+
+                    <div class="teacher-section">
+                        <!-- Head Teacher Card -->
+                        <div class="head-teacher-card">
+                            <div class="head-teacher-title">Head Teacher</div>
+                            <div class="head-teacher-name">Mr. D. Wijesinghe</div>
+                            <div class="head-teacher-email">d.wijesinghe@school.lk</div>
+                        </div>
+
+                        <!-- Grade Teachers -->
+                        <div class="grade-teachers-section">
+                            <div class="grade-teachers-title">Grade Teachers</div>
+                            <div class="grade-teacher-item">
+                                <span class="grade-badge">G6</span>
+                                <span class="teacher-name">Ms. K. Senanayake</span>
+                            </div>
+                            <div class="grade-teacher-item">
+                                <span class="grade-badge">G7</span>
+                                <span class="teacher-name">Mr. H. Jayawardena</span>
+                            </div>
+                            <div class="grade-teacher-item">
+                                <span class="grade-badge">G8</span>
+                                <span class="teacher-name">Ms. T. Dias</span>
+                            </div>
+                            <div class="grade-teacher-item">
+                                <span class="grade-badge">G9</span>
+                                <span class="teacher-name">Mr. B. Abeysinghe</span>
+                            </div>
+                            <div class="grade-teacher-item">
+                                <span class="grade-badge">G10</span>
+                                <span class="teacher-name">Ms. C. Samarasekara</span>
+                            </div>
+                            <div class="grade-teacher-item">
+                                <span class="grade-badge">G11</span>
+                                <span class="teacher-name">Mr. L. Ekanayake</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Level Section -->
+            <div class="col-md-4">
+                <div class="level-card advanced-level" data-min="12" data-max="13">
+                    <div class="level-icon"><i class="fa-solid fa-flask"></i></div>
+                    <h4 class="mb-1">Advanced Level (A/L)</h4>
+                    <p class="text-muted mb-3">Grades 12 – 13</p>
+
+                    <div class="teacher-section">
+                        <!-- Head Teacher Card -->
+                        <div class="head-teacher-card">
+                            <div class="head-teacher-title">Head Teacher</div>
+                            <div class="head-teacher-name">Mrs. S. Karunaratne</div>
+                            <div class="head-teacher-email">s.karunaratne@school.lk</div>
+                        </div>
+
+                        <!-- Grade Teachers -->
+                        <div class="grade-teachers-section">
+                            <div class="grade-teachers-title">Grade Teachers</div>
+                            <div class="grade-teacher-item">
+                                <span class="grade-badge">G12</span>
+                                <span class="teacher-name">Mr. M. Peiris</span>
+                            </div>
+                            <div class="grade-teacher-item">
+                                <span class="grade-badge">G13</span>
+                                <span class="teacher-name">Ms. D. Ranasinghe</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.level-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const min = card.getAttribute('data-min');
+            const max = card.getAttribute('data-max');
+            // Remove the alert and uncomment the navigation line
+            window.location.href = `/students?minGrade=${min}&maxGrade=${max}`;
+        });
+    });
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const themeBtn = document.querySelector('.theme-toggle');
+        if (document.body.classList.contains('dark-mode')) {
+            themeBtn.innerHTML = '<i class="fas fa-moon me-2"></i>Dark Mode';
+        } else {
+            themeBtn.innerHTML = '<i class="fas fa-sun me-2"></i>Light Mode';
+        }
+    }
+
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            sidebar.classList.toggle('collapsed');
+        }
+    }
+
+</script>
+</body>
+</html>

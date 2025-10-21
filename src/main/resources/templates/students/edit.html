@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Student - SchoolMS</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <i class="fas fa-graduation-cap me-2"></i>
+            SchoolMS
+        </div>
+        <div class="sidebar-subtitle">Management System</div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-item">
+            <a href="/" class="nav-link">
+                <i class="fas fa-tachometer-alt nav-icon"></i>
+                Dashboard
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/students" class="nav-link active">
+                <i class="fas fa-user-graduate nav-icon"></i>
+                Students
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/exams" class="nav-link">
+                <i class="fas fa-file-alt nav-icon"></i>
+                Exams
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/marks" class="nav-link">
+                <i class="fas fa-chart-line nav-icon"></i>
+                Marks
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/reports" class="nav-link">
+                <i class="fas fa-chart-pie nav-icon"></i>
+                Reports
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/attendance" class="nav-link">
+                <i class="fas fa-calendar-check nav-icon"></i>
+                Attendance
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="/settings" class="nav-link">
+                <i class="fas fa-cog nav-icon"></i>
+                Settings
+            </a>
+        </div>
+    </nav>
+
+    <div class="sidebar-footer">
+        <p>© 2024 SchoolMS</p>
+        <p>v2.0 Dashboard</p>
+    </div>
+</div>
+
+
+<div class="main-content">
+    <div class="top-bar">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-user-edit me-3"></i>
+                Edit Student
+            </h1>
+            <p class="section-subtitle">Update student profile</p>
+        </div>
+        <div class="user-menu">
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <i class="fas fa-moon me-2"></i>
+                Dark Mode
+            </button>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <form th:action="@{/students/edit/{id}(id=${student.id})}" th:object="${student}" method="post">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label"><i class="fas fa-user me-2"></i>First Name</label>
+                    <input class="form-control" th:field="*{firstName}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label"><i class="fas fa-user me-2"></i>Last Name</label>
+                    <input class="form-control" th:field="*{lastName}" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label"><i class="fas fa-envelope me-2"></i>Email</label>
+                    <input type="email" class="form-control" th:field="*{email}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label"><i class="fas fa-phone me-2"></i>Phone Number</label>
+                    <input class="form-control" th:field="*{phoneNumber}">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label"><i class="fas fa-map-marker-alt me-2"></i>Address</label>
+                <textarea class="form-control" rows="2" th:field="*{address}"></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label"><i class="fas fa-chalkboard me-2"></i>Class</label>
+                    <!-- CHANGED: input -> select (same options as registration); not adding 'required' to keep behavior -->
+                    <select class="form-select" id="className" th:field="*{className}">
+                        <option value="">-- Select Class --</option>
+                        <th:block th:each="grade : ${#numbers.sequence(1,13)}">
+                            <option th:value="${'Grade ' + grade + 'A'}"
+                                    th:text="${'Grade ' + grade + 'A'}"></option>
+                            <option th:value="${'Grade ' + grade + 'B'}"
+                                    th:text="${'Grade ' + grade + 'B'}"></option>
+                        </th:block>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label"><i class="fas fa-lock me-2"></i>New Password (optional)</label>
+                    <input type="password" class="form-control" th:field="*{password}" placeholder="Leave blank to keep current password">
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary btn-dashboard">
+                    <i class="fas fa-save me-2"></i>Update
+                </button>
+                <a href="/students" class="btn btn-secondary btn-dashboard">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<th:block th:replace="fragments/styles :: common-scripts"></th:block>
+
+<!-- Validations -->
+<script>
+    (function () {
+        'use strict';
+
+        // grab the single form
+        const form = document.querySelector('form[th\\:action^="@{/students/edit/"]') || document.querySelector('form');
+
+        // field getters via their bound names
+        const firstName = form.querySelector('[name="firstName"]');
+        const lastName  = form.querySelector('[name="lastName"]');
+        const email     = form.querySelector('input[type="email"][name="email"]') || form.querySelector('[name="email"]');
+        const phone     = form.querySelector('[name="phoneNumber"]');
+        const address   = form.querySelector('[name="address"]');
+        const className = form.querySelector('[name="className"]');
+        const password  = form.querySelector('input[type="password"][name="password"]') || form.querySelector('[name="password"]');
+        const submitBtn = form.querySelector('button[type="submit"]');
+
+        // helpers
+        function mark(el, ok) {
+            if (!el) return;
+            if (ok) { el.classList.remove('is-invalid'); el.classList.add('is-valid'); }
+            else    { el.classList.remove('is-valid');   el.classList.add('is-invalid'); }
+        }
+
+        function pwScore(s){let k=0;if(s.length>=8)k++;if(/[a-z]/.test(s))k++;if(/[A-Z]/.test(s))k++;if(/\d/.test(s))k++;if(/[^A-Za-z0-9]/.test(s))k++;return k;}
+
+        // validators (mirror register rules)
+        function validateFirst() {
+            const v = (firstName?.value || '').trim();
+            const ok = v.length>=2 && v.length<=50;
+            if (firstName) firstName.setCustomValidity(ok ? '' : 'First name must be 2-50 characters.');
+            mark(firstName, ok);
+            return ok;
+        }
+        function validateLast() {
+            const v = (lastName?.value || '').trim();
+            const ok = v.length>=2 && v.length<=50;
+            if (lastName) lastName.setCustomValidity(ok ? '' : 'Last name must be 2-50 characters.');
+            mark(lastName, ok);
+            return ok;
+        }
+        function validateEmail() {
+            const v = (email?.value || '').trim();
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
+            const ok = re.test(v);
+            if (email) {
+                email.setCustomValidity(ok ? '' : 'Email must be a valid Gmail address like name@gmail.com.');
+            }
+            mark(email, ok);
+            return ok;
+        }
+        function validatePhone() {
+            if (!phone) return true; // optional here; only validate when present/non-empty
+            const v = (phone.value || '').trim();
+            const re=/^[0-9]{10}$/;
+            const ok = !v || re.test(v);
+            phone.setCustomValidity(ok ? '' : 'Enter a valid 10-digit phone number.');
+            mark(phone, ok || !v ? true : false);
+            return ok;
+        }
+        function validateAddress() {
+            if (!address) return true; // optional; only validate if filled
+            const v = (address.value || '').trim();
+            const ok = !v || (v.length>=5 && v.length<=200);
+            address.setCustomValidity(ok ? '' : 'Address must be 5-200 characters.');
+            mark(address, ok || !v ? true : false);
+            return ok;
+        }
+        function validateClassName() {
+            // Optional here; treat empty as valid (unchanged behavior)
+            if (!className) return true;
+            const v = (className.value || '').trim();
+            const ok = !v || v.length > 0;
+            mark(className, ok);
+            return ok;
+        }
+        function validateOptionalPassword() {
+            if (!password) return true;
+            const v = password.value || '';
+            if (!v) { password.setCustomValidity(''); password.classList.remove('is-invalid'); return true; }
+            if (v.length < 8) {
+                password.setCustomValidity('Password must be at least 8 characters long');
+                password.classList.add('is-invalid');
+                return false;
+            }
+            if (pwScore(v) < 3) {
+                password.setCustomValidity('Password is too weak. Include uppercase, lowercase, numbers, and special characters.');
+                password.classList.add('is-invalid');
+                return false;
+            }
+            password.setCustomValidity('');
+            password.classList.remove('is-invalid');
+            return true;
+        }
+
+        // realtime like register page
+        if (firstName) firstName.addEventListener('blur', validateFirst);
+        if (lastName)  lastName.addEventListener('blur', validateLast);
+        if (email)     email.addEventListener('blur', validateEmail);
+        if (phone)     phone.addEventListener('blur', validatePhone);
+        if (address)   address.addEventListener('blur', validateAddress);
+        if (className) className.addEventListener('blur', validateClassName);
+        if (password)  password.addEventListener('input', validateOptionalPassword);
+
+        // submit
+        form.addEventListener('submit', function(e){
+            const ok =
+                validateFirst() &
+                validateLast() &
+                validateEmail() &
+                validatePhone() &
+                validateAddress() &
+                validateClassName() &
+                validateOptionalPassword();
+
+            if (!ok || !form.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+                form.classList.add('was-validated');
+                return;
+            }
+
+            // spinner UX
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Updating...';
+            }
+            form.classList.add('was-validated');
+        }, false);
+    })();
+</script>
+</body>
+</html>

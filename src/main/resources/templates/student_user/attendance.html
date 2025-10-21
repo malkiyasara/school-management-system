@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance | SchoolMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #a5b4fc;
+            --secondary: #f59e0b;
+            --success: #10b981;
+            --info: #3b82f6;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gray-light: #e2e8f0;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --card-radius: 16px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: #f1f5f9;
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+            color: white;
+            z-index: 1000;
+            transition: var(--transition);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h4 {
+            margin: 0;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-header p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+
+        .sidebar nav {
+            flex: 1;
+            padding: 0 1rem;
+        }
+
+        .sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.85rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: white;
+            transform: scaleY(0);
+            transition: var(--transition);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .sidebar .nav-link:hover::before {
+            transform: scaleY(1);
+        }
+
+        .sidebar .nav-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar .nav-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .sidebar .nav-link i {
+            width: 24px;
+            text-align: center;
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        /* Header */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem 0;
+        }
+
+        .top-bar h1 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--dark);
+        }
+
+        .name-highlight {
+            color: var(--primary);
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .user-role {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* Cards */
+        .dashboard-card {
+            background: white;
+            border-radius: var(--card-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            border: 1px solid var(--gray-light);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .icon-attendance {
+            background: linear-gradient(135deg, var(--success), #0ca678);
+        }
+
+        .icon-summary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        }
+
+        .icon-calendar {
+            background: linear-gradient(135deg, var(--warning), #f76707);
+        }
+
+        /* Stats */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--card-radius);
+            padding: 1.5rem;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            border: 1px solid var(--gray-light);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .stat-present {
+            color: var(--success);
+        }
+
+        .stat-absent {
+            color: var(--danger);
+        }
+
+        .stat-late {
+            color: var(--warning);
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Attendance badges */
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .status-present {
+            background: var(--success);
+        }
+
+        .status-absent {
+            background: var(--danger);
+        }
+
+        .status-late {
+            background: var(--warning);
+            color: #000;
+        }
+
+        /* Table */
+        .attendance-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .attendance-table thead th {
+            background-color: var(--light);
+            color: var(--dark);
+            font-weight: 600;
+            padding: 1rem;
+            border-bottom: 2px solid var(--gray-light);
+        }
+
+        .attendance-table tbody tr {
+            transition: var(--transition);
+        }
+
+        .attendance-table tbody tr:hover {
+            background-color: rgba(99, 102, 241, 0.05);
+        }
+
+        .attendance-table tbody td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+
+        /* Calendar */
+        .calendar-container {
+            background: white;
+            border-radius: var(--card-radius);
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--gray-light);
+            overflow: hidden;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .calendar-day {
+            text-align: center;
+            font-weight: 600;
+            color: var(--gray);
+            padding: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .calendar-date {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: var(--transition);
+            cursor: pointer;
+            font-size: 0.85rem;
+            min-height: 35px;
+            border: 1px solid transparent;
+        }
+
+        .calendar-date:hover {
+            background-color: var(--gray-light);
+            border-color: var(--primary-light);
+        }
+
+        .calendar-date.present {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            font-weight: 600;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .calendar-date.absent {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            font-weight: 600;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .calendar-date.late {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            font-weight: 600;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .calendar-date.empty {
+            background-color: transparent;
+            cursor: default;
+        }
+
+        .calendar-date.empty:hover {
+            background-color: transparent;
+            border-color: transparent;
+        }
+
+        /* Calendar navigation buttons */
+        .calendar-nav-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--gray-light);
+            border-radius: 8px;
+            background: white;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .calendar-nav-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--light);
+        }
+
+        .calendar-month-year {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1rem;
+        }
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--dark);
+            cursor: pointer;
+        }
+
+        /* Filters */
+        .filter-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            border: 1px solid var(--gray-light);
+            background: white;
+            color: var(--gray);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h4><i class="fas fa-graduation-cap"></i> SchoolMS</h4>
+        <p>Student Management System</p>
+    </div>
+    <nav>
+        <a href="/student_user/dashboard" class="nav-link">
+            <i class="fas fa-tachometer-alt"></i>Dashboard
+        </a>
+        <a href="/student_user/profile" class="nav-link">
+            <i class="fas fa-user-circle"></i>Profile
+        </a>
+        <a href="/student_user/attendance" class="nav-link active">
+            <i class="fas fa-calendar-check"></i>Attendance
+        </a>
+<!--        <a href="/student_user/courses" class="nav-link">-->
+<!--            <i class="fas fa-book-open"></i>Courses-->
+<!--        </a>-->
+<!--        <a href="/student_user/grades" class="nav-link">-->
+<!--            <i class="fas fa-chart-line"></i>Grades-->
+<!--        </a>-->
+<!--        <a href="/student_user/schedule" class="nav-link">-->
+<!--            <i class="fas fa-calendar-alt"></i>Schedule-->
+<!--        </a>-->
+<!--        <a href="/student_user/settings" class="nav-link">-->
+<!--            <i class="fas fa-cog"></i>Settings-->
+<!--        </a>-->
+    </nav>
+    <div class="sidebar-footer">
+        <p>&copy; 2023 SchoolMS. All rights reserved.</p>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Header -->
+    <div class="top-bar">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1>📅 Attendance for <span class="name-highlight" th:text="${studentUser.fullName}"></span></h1>
+        <div class="user-info">
+            <div class="user-details">
+                <span class="user-name" th:text="${studentUser.fullName}"></span>
+                <span class="user-role" th:text="${studentUser.className}"></span>
+            </div>
+            <div class="dropdown">
+                <div class="user-avatar" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span th:text="${studentUser.fullName.substring(0,1)}"></span>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end p-3 shadow" aria-labelledby="profileDropdown">
+                    <li class="text-center mb-2">
+                        <div class="user-avatar mx-auto mb-2">
+                            <span th:text="${studentUser.fullName.substring(0,1)}"></span>
+                        </div>
+                        <h6 class="mb-0" th:text="${studentUser.fullName}"></h6>
+                        <small class="text-muted d-block" th:text="${studentUser.className}"></small>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <p class="mb-1"><i class="fas fa-envelope me-2"></i>
+                            <span th:text="${studentUser.email}"></span>
+                        </p>
+                        <p class="mb-0"><i class="fas fa-phone me-2"></i>
+                            <span th:text="${studentUser.phoneNumber}"></span>
+                        </p>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="/student_user/profile">
+                            <i class="fas fa-user me-2"></i>My Profile
+                        </a>
+<!--                        <a class="dropdown-item" href="/student_user/settings">-->
+<!--                            <i class="fas fa-cog me-2"></i>Settings-->
+<!--                        </a>-->
+                        <a class="dropdown-item text-danger" href="/student_user/logout">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-number stat-present" th:text="${attendanceCounts['Present']}">0</div>
+            <div class="stat-label">Present Days</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number stat-absent" th:text="${attendanceCounts['Absent']}">0</div>
+            <div class="stat-label">Absent Days</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number stat-late" th:text="${attendanceCounts['Late']}">0</div>
+            <div class="stat-label">Late Arrivals</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" th:text="${attendanceCounts['Present'] + attendanceCounts['Absent'] + attendanceCounts['Late']}">0</div>
+            <div class="stat-label">Total Days</div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-container">
+        <button class="filter-btn active" data-filter="all">All Records</button>
+        <button class="filter-btn" data-filter="present">Present Only</button>
+        <button class="filter-btn" data-filter="absent">Absent Only</button>
+        <button class="filter-btn" data-filter="late">Late Only</button>
+        <div class="ms-auto">
+            <select class="form-select" id="monthFilter">
+                <option value="all">All Months</option>
+                <option value="0">January</option>
+                <option value="1">February</option>
+                <option value="2">March</option>
+                <option value="3">April</option>
+                <option value="4">May</option>
+                <option value="5">June</option>
+                <option value="6">July</option>
+                <option value="7">August</option>
+                <option value="8">September</option>
+                <option value="9">October</option>
+                <option value="10">November</option>
+                <option value="11">December</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Attendance Table -->
+        <div class="col-lg-8">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h5 class="card-title">Attendance Records</h5>
+                    <div class="card-icon icon-attendance">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table attendance-table">
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Day</th>
+                            <th>Status</th>
+                            <th>Remarks</th>
+                        </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody">
+                        <tr th:each="attendance : ${attendanceList}">
+                            <td th:text="${#temporals.format(attendance.date,'dd MMM yyyy')}">29 Sep 2025</td>
+                            <td th:text="${#temporals.dayOfWeekName(attendance.date)}">Monday</td>
+                            <td>
+                                <span th:if="${attendance.status=='Present'}" class="status-badge status-present">Present</span>
+                                <span th:if="${attendance.status=='Absent'}" class="status-badge status-absent">Absent</span>
+                                <span th:if="${attendance.status=='Late'}" class="status-badge status-late">Late</span>
+                            </td>
+                            <td th:text="${attendance.remarks} ?: 'No remarks'">No remarks</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Summary & Calendar -->
+        <div class="col-lg-4">
+            <!-- Summary Chart -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h5 class="card-title">Attendance Summary</h5>
+                    <div class="card-icon icon-summary">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="attendanceSummaryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Calendar -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h5 class="card-title">Attendance Calendar</h5>
+                    <div class="card-icon icon-calendar">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                </div>
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <button class="btn btn-sm btn-outline-primary" id="prevMonth">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <h6 id="currentMonth" class="mb-0">September 2023</h6>
+                        <button class="btn btn-sm btn-outline-primary" id="nextMonth">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div class="calendar-grid">
+                        <div class="calendar-day">Sun</div>
+                        <div class="calendar-day">Mon</div>
+                        <div class="calendar-day">Tue</div>
+                        <div class="calendar-day">Wed</div>
+                        <div class="calendar-day">Thu</div>
+                        <div class="calendar-day">Fri</div>
+                        <div class="calendar-day">Sat</div>
+                        <!-- Calendar dates will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.querySelector('.sidebar');
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+        }
+
+        // Attendance Summary Chart
+        const attendanceCounts = /*[[${attendanceCounts}]]*/ {"Present": 15, "Absent": 3, "Late": 2};
+
+        new Chart(document.getElementById('attendanceSummaryChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ["Present", "Absent", "Late"],
+                datasets: [{
+                    data: [attendanceCounts["Present"], attendanceCounts["Absent"], attendanceCounts["Late"]],
+                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+
+        // Filter functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const attendanceTableBody = document.getElementById('attendanceTableBody');
+        const rows = attendanceTableBody.getElementsByTagName('tr');
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+
+                const filter = this.getAttribute('data-filter');
+
+                // Filter rows
+                for (let row of rows) {
+                    const statusCell = row.cells[2];
+                    const statusBadge = statusCell.querySelector('.status-badge');
+                    const status = statusBadge ? statusBadge.textContent.trim().toLowerCase() : '';
+
+                    if (filter === 'all' || status === filter) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+        });
+
+        // Calendar functionality
+        let currentDate = new Date();
+
+        function renderCalendar(date) {
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+
+            document.getElementById('currentMonth').textContent = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+
+            const calendarGrid = document.querySelector('.calendar-grid');
+            // Clear existing dates (keep day headers)
+            while (calendarGrid.children.length > 7) {
+                calendarGrid.removeChild(calendarGrid.lastChild);
+            }
+
+            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+            const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+            // Add empty cells for days before the first day of the month
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'calendar-date';
+                calendarGrid.appendChild(emptyCell);
+            }
+
+            // Add cells for each day of the month
+            for (let i = 1; i <= lastDay.getDate(); i++) {
+                const dateCell = document.createElement('div');
+                dateCell.className = 'calendar-date';
+                dateCell.textContent = i;
+
+                // For demo purposes, randomly assign attendance status
+                // In a real application, this would come from your data
+                const randomStatus = Math.floor(Math.random() * 10);
+                if (randomStatus < 7) {
+                    dateCell.classList.add('present');
+                } else if (randomStatus < 9) {
+                    dateCell.classList.add('absent');
+                } else {
+                    dateCell.classList.add('late');
+                }
+
+                calendarGrid.appendChild(dateCell);
+            }
+        }
+
+        document.getElementById('prevMonth').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar(currentDate);
+        });
+
+        document.getElementById('nextMonth').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar(currentDate);
+        });
+
+        renderCalendar(currentDate);
+    });
+</script>
+</body>
+</html>

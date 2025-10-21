@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Student List - SchoolMS</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+    <style>
+        .alert-success {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+        }
+        .alert-danger {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid #f44336;
+            color: #f44336;
+        }
+        .btn-close { filter: invert(1); }
+    </style>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <i class="fas fa-graduation-cap me-2"></i>
+            SchoolMS
+        </div>
+        <div class="sidebar-subtitle">Management System</div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-item">
+            <a href="/" class="nav-link">
+                <i class="fas fa-tachometer-alt nav-icon"></i>
+                Dashboard
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/students" class="nav-link active">
+                <i class="fas fa-user-graduate nav-icon"></i>
+                Students
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/exams" class="nav-link">
+                <i class="fas fa-file-alt nav-icon"></i>
+                Exams
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/marks" class="nav-link">
+                <i class="fas fa-chart-line nav-icon"></i>
+                Marks
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/reports" class="nav-link">
+                <i class="fas fa-chart-pie nav-icon"></i>
+                Reports
+            </a>
+        </div>
+
+        <div class="nav-item">
+            <a href="/attendance" class="nav-link">
+                <i class="fas fa-calendar-check nav-icon"></i>
+                Attendance
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="/settings" class="nav-link">
+                <i class="fas fa-cog nav-icon"></i>
+                Settings
+            </a>
+        </div>
+    </nav>
+
+    <div class="sidebar-footer">
+        <p>© 2024 SchoolMS</p>
+        <p>v2.0 Dashboard</p>
+    </div>
+</div>
+
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-user-graduate me-3"></i>
+                Student Management
+            </h1>
+            <p class="section-subtitle">Manage student profiles and information</p>
+        </div>
+
+        <div class="user-menu">
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <i class="fas fa-moon me-2"></i>
+                Dark Mode
+            </button>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${param.success}">Success message</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span th:text="${param.error}">Error message</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/students">Grades</a></li>
+            <li class="breadcrumb-item">
+                <a th:href="@{/students/grade/{g}(g=${grade})}" th:text="'Grade ' + ${grade}">Grade</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page"
+                th:text="'Section ' + ${section}">Section</li>
+        </ol>
+    </nav>
+
+    <div class="dashboard-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-list me-2"></i>
+                Students - Grade [[${grade}]] [[${section}]]
+            </h3>
+
+            <!-- Search Form -->
+            <form th:action="@{/students/grade/{g}/{s}(g=${grade},s=${section})}" method="get" class="d-flex">
+                <input type="text" name="search" th:value="${search}" placeholder="Search by name" class="form-control me-2">
+                <button type="submit" class="btn btn-secondary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+
+            <!-- Add Button -->
+            <a href="/students/add" class="btn btn-primary btn-dashboard ms-2">
+                <i class="fas fa-plus me-2"></i>Add Student
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th>Class</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Empty state -->
+                <tr th:if="${students == null or students.isEmpty()}">
+                    <td colspan="7" class="text-center py-4">
+                        <i class="fas fa-info-circle fa-2x text-muted mb-3 d-block"></i>
+                        <h5 class="text-muted">No Students Found</h5>
+                        <p class="text-muted">Add your first student to get started.</p>
+                        <a href="/students/add" class="btn btn-primary btn-dashboard">
+                            <i class="fas fa-plus me-2"></i>Add First Student
+                        </a>
+                    </td>
+                </tr>
+
+                <!-- Rows -->
+                <tr th:each="student : ${students}" th:if="${students != null and !students.isEmpty()}">
+                    <td th:text="${student.id}"></td>
+                    <td th:text="${student.fullName != null and !#strings.isEmpty(student.fullName) ? student.fullName : (student.firstName + ' ' + student.lastName)}"></td>
+                    <td th:text="${student.email}"></td>
+                    <td th:text="${student.phoneNumber}"></td>
+                    <td th:text="${student.address}"></td>
+                    <td th:text="${student.className}"></td>
+                    <td>
+                        <a th:href="@{/students/edit/{id}(id=${student.id})}" class="btn btn-sm btn-warning me-1">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </a>
+
+                        <!-- Delete button with SweetAlert2 -->
+                        <button type="button"
+                                class="btn btn-sm btn-danger btn-delete-student"
+                                th:attr="data-url=@{/students/delete/{id}(id=${student.id})},
+                                         data-name=${student.fullName != null and !#strings.isEmpty(student.fullName) ? student.fullName : (student.firstName + ' ' + student.lastName)}">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="fragments/styles :: common-scripts"></th:block>
+
+<!-- SweetAlert2 (nice confirm) -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    (function () {
+        // Attach once after DOM is ready
+        document.addEventListener('DOMContentLoaded', function () {
+            const buttons = document.querySelectorAll('.btn-delete-student');
+
+            buttons.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const url  = this.getAttribute('data-url');
+                    const name = this.getAttribute('data-name') || 'this student';
+
+                    if (typeof Swal === 'undefined') {
+                        // Fallback if SweetAlert2 didn't load
+                        if (confirm('Are you sure you want to delete ' + name + '? This will also delete all their marks and exam records.')) {
+                            window.location.href = url;
+                        }
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Delete this student?',
+                        html: `<div style="font-size:14px;color:#666">
+                     You are about to delete <b>${escapeHtml(name)}</b>.<br/>
+                     This will also delete all their marks and exam records.<br/>
+                     This action cannot be undone.
+                   </div>`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ff4444',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, delete',
+                        cancelButtonText: 'Cancel',
+                        reverseButtons: true,
+                        focusCancel: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Call the delete URL, then always go back to the Grade page
+                            fetch(url, { method: 'GET', credentials: 'same-origin' })
+                                .then(() => {
+                                    return Swal.fire({
+                                        title: 'Deleted',
+                                        text: 'The student was deleted successfully.',
+                                        icon: 'success',
+                                        timer: 1200,
+                                        showConfirmButton: false
+                                    });
+                                })
+                                .catch(() => {
+                                    // Even if the request errors out, we still navigate to keep UX consistent
+                                    return Swal.fire({
+                                        title: 'Deleted',
+                                        text: 'Returning to grade page...',
+                                        icon: 'info',
+                                        timer: 900,
+                                        showConfirmButton: false
+                                    });
+                                })
+                                .then(() => {
+                                    window.location.href = /*[[@{/students/grade/{g}/{s}(g=${grade},s=${section})}]]*/ "";
+                                });
+                        }
+                    });
+                });
+            });
+        });
+
+        function escapeHtml(s) {
+            return String(s)
+                .replaceAll('&','&amp;')
+                .replaceAll('<','&lt;')
+                .replaceAll('>','&gt;')
+                .replaceAll('"','&quot;')
+                .replaceAll("'",'&#039;');
+        }
+    })();
+</script>
