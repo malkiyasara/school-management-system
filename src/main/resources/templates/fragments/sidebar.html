@@ -1,0 +1,86 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head></head>
+    <body>
+        <!-- Sidebar Fragment -->
+        <div th:fragment="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-graduation-cap me-2"></i>
+                    SchoolMS
+                </div>
+                <div class="sidebar-subtitle">Management System</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-item">
+                    <a href="/" class="nav-link">
+                        <i class="fas fa-tachometer-alt nav-icon"></i>
+                        Dashboard
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="/students" class="nav-link">
+                        <i class="fas fa-user-graduate nav-icon"></i>
+                        Students
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="/exams" class="nav-link">
+                        <i class="fas fa-file-alt nav-icon"></i>
+                        Exams
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="/marks" class="nav-link">
+                        <i class="fas fa-chart-line nav-icon"></i>
+                        Marks
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="/fees" class="nav-link">
+                        <i class="fas fa-money-bill-wave nav-icon"></i>
+                        Fees
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="/attendance" class="nav-link">
+                        <i class="fas fa-calendar-check nav-icon"></i>
+                        Attendance
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="/users" class="nav-link">
+                        <i class="fas fa-users nav-icon"></i>
+                        Users
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="/class-teachers" class="nav-link">
+                        <i class="fas fa-chalkboard-teacher nav-icon"></i>
+                        Class Teachers
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="/settings" class="nav-link">
+                        <i class="fas fa-cog nav-icon"></i>
+                        Settings
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>© 2024 SchoolMS</p>
+                <p>v2.0 Dashboard</p>
+            </div>
+        </div>
+    </body>
+</html>
