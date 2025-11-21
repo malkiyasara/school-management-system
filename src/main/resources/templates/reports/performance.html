@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Performance Reports - SchoolMS</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 2rem;
+        }
+        
+        .performance-metric {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .grade-distribution {
+            display: flex;
+            justify-content: space-between;
+            margin: 1rem 0;
+        }
+        
+        .grade-item {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 10px;
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            flex: 1;
+            margin: 0 0.5rem;
+        }
+        
+        .grade-letter {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .grade-count {
+            font-size: 1.2rem;
+            color: var(--dark-text);
+        }
+        
+        .top-performers {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+        
+        .performer-item {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background: var(--dark-hover);
+            border-radius: 8px;
+        }
+        
+        .performer-rank {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 1rem;
+        }
+        
+        .performer-details {
+            flex: 1;
+        }
+        
+        .performer-name {
+            font-weight: 600;
+            color: var(--dark-text);
+        }
+        
+        .performer-class {
+            font-size: 0.9rem;
+            color: var(--dark-text-secondary);
+        }
+        
+        .performer-score {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <h1 class="page-title">
+                    <i class="fas fa-chart-line me-3"></i>
+                    Performance Reports
+                </h1>
+                <p class="section-subtitle">Comprehensive performance analytics and insights</p>
+            </div>
+            
+            <div class="user-menu">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon me-2"></i>
+                    Dark Mode
+                </button>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="performance-metric">
+                    <div class="metric-value" th:text="${averagePercentage != null ? averagePercentage + '%' : '0%'}">0%</div>
+                    <div class="metric-label">Average Performance</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="performance-metric">
+                    <div class="metric-value" th:text="${totalStudents != null ? totalStudents : 0}">0</div>
+                    <div class="metric-label">Students Evaluated</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="performance-metric">
+                    <div class="metric-value" th:text="${passRate != null ? passRate + '%' : '0%'}">0%</div>
+                    <div class="metric-label">Pass Rate</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="performance-metric">
+                    <div class="metric-value" th:text="${totalExams != null ? totalExams : 0}">0</div>
+                    <div class="metric-label">Total Exams</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="dashboard-card">
+                    <h3 class="card-title mb-4">
+                        <i class="fas fa-chart-area me-2"></i>
+                        Performance Trend
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="performanceTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="dashboard-card">
+                    <h3 class="card-title mb-4">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Grade Distribution
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="gradeDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subject Performance -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <h3 class="card-title mb-4">
+                        <i class="fas fa-book me-2"></i>
+                        Subject-wise Performance
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="subjectPerformanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grade Distribution Details -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <h3 class="card-title mb-4">
+                        <i class="fas fa-award me-2"></i>
+                        Grade Distribution Details
+                    </h3>
+                    <div class="grade-distribution">
+                        <div class="grade-item">
+                            <div class="grade-letter">A+</div>
+                            <div class="grade-count" th:text="${gradeDistribution['A+'] != null ? gradeDistribution['A+'] + ' Students' : '0 Students'}">0 Students</div>
+                            <div class="text-success">90-100%</div>
+                        </div>
+                        <div class="grade-item">
+                            <div class="grade-letter">A</div>
+                            <div class="grade-count" th:text="${gradeDistribution['A'] != null ? gradeDistribution['A'] + ' Students' : '0 Students'}">0 Students</div>
+                            <div class="text-success">80-89%</div>
+                        </div>
+                        <div class="grade-item">
+                            <div class="grade-letter">B+</div>
+                            <div class="grade-count" th:text="${gradeDistribution['B+'] != null ? gradeDistribution['B+'] + ' Students' : '0 Students'}">0 Students</div>
+                            <div class="text-info">70-79%</div>
+                        </div>
+                        <div class="grade-item">
+                            <div class="grade-letter">B</div>
+                            <div class="grade-count" th:text="${gradeDistribution['B'] != null ? gradeDistribution['B'] + ' Students' : '0 Students'}">0 Students</div>
+                            <div class="text-info">60-69%</div>
+                        </div>
+                        <div class="grade-item">
+                            <div class="grade-letter">C</div>
+                            <div class="grade-count" th:text="${gradeDistribution['C'] != null ? gradeDistribution['C'] + ' Students' : '0 Students'}">0 Students</div>
+                            <div class="text-warning">50-59%</div>
+                        </div>
+                        <div class="grade-item">
+                            <div class="grade-letter">F</div>
+                            <div class="grade-count" th:text="${gradeDistribution['F'] != null ? gradeDistribution['F'] + ' Students' : '0 Students'}">0 Students</div>
+                            <div class="text-danger">Below 50%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Performers -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="dashboard-card">
+                    <h3 class="card-title mb-4">
+                        <i class="fas fa-trophy me-2"></i>
+                        Top Performers
+                    </h3>
+                    <div class="top-performers">
+                        <div th:if="${topPerformers != null and !topPerformers.isEmpty()}">
+                            <div class="performer-item" th:each="mark, iterStat : ${topPerformers}" th:if="${iterStat.index < 5}">
+                                <div class="performer-rank" th:text="${iterStat.index + 1}">1</div>
+                                <div class="performer-details">
+                                    <div class="performer-name" th:text="${mark.student != null ? mark.student.name : 'Unknown'}">Student Name</div>
+                                    <div class="performer-class" th:text="${mark.exam != null ? mark.exam.className : 'Unknown Class'}">Class</div>
+                                </div>
+                                <div class="performer-score" th:text="${#numbers.formatDecimal(mark.percentage, 1, 1) + '%'}">0%</div>
+                            </div>
+                        </div>
+                        <div th:if="${topPerformers == null or topPerformers.isEmpty()}" class="text-center text-muted py-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No performance data available yet. Add some marks to see top performers.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="dashboard-card">
+                    <h3 class="card-title mb-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Students Needing Support
+                    </h3>
+                    <div class="top-performers">
+                        <div th:if="${studentsNeedingSupport != null and !studentsNeedingSupport.isEmpty()}">
+                            <div class="performer-item" th:each="mark, iterStat : ${studentsNeedingSupport}" th:if="${iterStat.index < 5}">
+                                <div class="performer-rank" style="background: var(--danger-color);" th:text="${iterStat.index + 1}">1</div>
+                                <div class="performer-details">
+                                    <div class="performer-name" th:text="${mark.student != null ? mark.student.name : 'Unknown'}">Student Name</div>
+                                    <div class="performer-class" th:text="${mark.exam != null ? mark.exam.className : 'Unknown Class'}">Class</div>
+                                </div>
+                                <div class="performer-score" style="color: var(--danger-color);" th:text="${#numbers.formatDecimal(mark.percentage, 1, 1) + '%'}">0%</div>
+                            </div>
+                        </div>
+                        <div th:if="${studentsNeedingSupport == null or studentsNeedingSupport.isEmpty()}" class="text-center text-muted py-4">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Great! No students currently need additional support.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Options -->
+        <div class="row">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <h3 class="card-title mb-4">
+                        <i class="fas fa-download me-2"></i>
+                        Export Reports
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-primary btn-dashboard" onclick="exportToPDF()">
+                            <i class="fas fa-file-pdf me-2"></i>Export to PDF
+                        </button>
+                        <button class="btn btn-success btn-dashboard" onclick="exportToExcel()">
+                            <i class="fas fa-file-excel me-2"></i>Export to Excel
+                        </button>
+                        <button class="btn btn-info btn-dashboard" onclick="printReport()">
+                            <i class="fas fa-print me-2"></i>Print Report
+                        </button>
+                        <a href="/reports" class="btn btn-secondary btn-dashboard">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:replace="fragments/styles :: common-scripts"></th:block>
+    
+    <script th:inline="javascript">
+        // Get data from server
+        const marksBySubject = /*[[${marksBySubject}]]*/ {};
+        const gradeDistribution = /*[[${gradeDistribution}]]*/ {};
+        const marksByClass = /*[[${marksByClass}]]*/ {};
+        
+        // Performance Trend Chart
+        const performanceTrendCtx = document.getElementById('performanceTrendChart').getContext('2d');
+        new Chart(performanceTrendCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Average Performance %',
+                    data: [78, 82, 85, 87, 89, 88, 90, 87, 89, 91, 88, 87], // This would be calculated from real data
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Grade Distribution Chart
+        const gradeDistributionCtx = document.getElementById('gradeDistributionChart').getContext('2d');
+        const gradeLabels = ['A+', 'A', 'B+', 'B', 'C', 'F'];
+        const gradeData = gradeLabels.map(grade => gradeDistribution[grade] || 0);
+        
+        new Chart(gradeDistributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: gradeLabels,
+                datasets: [{
+                    data: gradeData,
+                    backgroundColor: [
+                        '#4CAF50',
+                        '#8BC34A',
+                        '#2196F3',
+                        '#03A9F4',
+                        '#FF9800',
+                        '#f44336'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#2d2d2d'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#ffffff',
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
+
+        // Subject Performance Chart
+        const subjectPerformanceCtx = document.getElementById('subjectPerformanceChart').getContext('2d');
+        const subjectLabels = Object.keys(marksBySubject);
+        const subjectData = Object.values(marksBySubject).map(avg => Math.round(avg * 10) / 10);
+        
+        new Chart(subjectPerformanceCtx, {
+            type: 'bar',
+            data: {
+                labels: subjectLabels.length > 0 ? subjectLabels : ['No Data'],
+                datasets: [{
+                    label: 'Average Score %',
+                    data: subjectData.length > 0 ? subjectData : [0],
+                    backgroundColor: [
+                        '#667eea',
+                        '#764ba2',
+                        '#4CAF50',
+                        '#2196F3',
+                        '#FF9800',
+                        '#9C27B0',
+                        '#00BCD4'
+                    ],
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Export functions
+        function exportToPDF() {
+            alert('PDF export functionality would be implemented here');
+        }
+
+        function exportToExcel() {
+            alert('Excel export functionality would be implemented here');
+        }
+
+        function printReport() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

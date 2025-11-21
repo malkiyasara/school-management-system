@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Class Analytics - SchoolMS</title>
+    <th:block th:replace="fragments/styles :: common-styles"></th:block>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 2rem;
+        }
+        
+        .class-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .class-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+        }
+        
+        .class-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--dark-border);
+        }
+        
+        .class-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .class-stats {
+            display: flex;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark-text);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--dark-text-secondary);
+        }
+        
+        .subject-performance {
+            margin-top: 1rem;
+        }
+        
+        .subject-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background: var(--dark-hover);
+            border-radius: 8px;
+        }
+        
+        .subject-name {
+            font-weight: 600;
+            color: var(--dark-text);
+        }
+        
+        .subject-score {
+            font-weight: 700;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+        
+        .score-excellent { background: var(--accent-color); color: white; }
+        .score-good { background: var(--info-color); color: white; }
+        .score-average { background: var(--warning-color); color: white; }
+        .score-poor { background: var(--danger-color); color: white; }
+        
+        .analytics-metric {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .comparison-chart {
+            height: 300px;
+        }
+        
+        .filter-section {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .filter-group {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <h1 class="page-title">
+                    <i class="fas fa-users me-3"></i>
+                    Class Analytics
+                </h1>
+                <p class="section-subtitle">Analyze performance by class and subject</p>
+            </div>
+            
+            <div class="user-menu">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon me-2"></i>
+                    Dark Mode
+                </button>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <h4 class="card-title mb-3">
+                <i class="fas fa-filter me-2"></i>
+                Filter Analytics
+            </h4>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label class="form-label">Select Grade</label>
+                    <select class="form-control" id="gradeFilter">
+                        <option value="all">All Grades</option>
+                        <option value="9">Grade 9</option>
+                        <option value="10">Grade 10</option>
+                        <option value="11">Grade 11</option>
+                        <option value="12">Grade 12</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="form-label">Select Subject</label>
+                    <select class="form-control" id="subjectFilter">
+                        <option value="all">All Subjects</option>
+                        <option value="mathematics">Mathematics</option>
+                        <option value="physics">Physics</option>
+                        <option value="chemistry">Chemistry</option>
+                        <option value="biology">Biology</option>
+                        <option value="english">English</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="form-label">Time Period</label>
+                    <select class="form-control" id="periodFilter">
+                        <option value="current">Current Term</option>
+                        <option value="last">Last Term</option>
+                        <option value="year">Full Year</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <button class="btn btn-primary btn-dashboard" onclick="applyFilters()">
+                        <i class="fas fa-search me-2"></i>Apply Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Metrics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="analytics-metric">
+                    <div class="metric-value" th:text="${totalClasses != null ? totalClasses : 0}">0</div>
+                    <div class="metric-label">Total Classes</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="analytics-metric">
+                    <div class="metric-value" th:text="${totalStudents != null ? totalStudents : 0}">0</div>
+                    <div class="metric-label">Total Students</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="analytics-metric">
+                    <div class="metric-value" th:text="${classAverages != null and !classAverages.isEmpty() ? #numbers.formatDecimal(classAverages.values().stream().mapToDouble(d -> d).average().orElse(0.0), 1, 1) + '%' : '0%'}">0%</div>
+                    <div class="metric-label">Overall Average</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="analytics-metric">
+                    <div class="metric-value" th:text="${classRankings != null and !classRankings.isEmpty() ? classRankings[0].key : 'No Data'}">No Data</div>
+                    <div class="metric-label">Top Performing Class</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Class Comparison Chart -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <h3 class="card-title mb-4">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Class Performance Comparison
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="classComparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subject Performance by Class -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="dashboard-card">
+                    <h3 class="card-title mb-4">
+                        <i class="fas fa-book me-2"></i>
+                        Subject Performance Across Classes
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="subjectClassChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="dashboard-card">
+                    <h3 class="card-title mb-4">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Performance Distribution
+                    </h3>
+                    <div class="chart-container comparison-chart">
+                        <canvas id="performanceDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Individual Class Details -->
+        <div class="row" th:if="${studentsByClass != null and !studentsByClass.isEmpty()}">
+            <div class="col-md-6" th:each="classEntry, iterStat : ${studentsByClass}" th:if="${iterStat.index < 4}">
+                <div class="class-card">
+                    <div class="class-header">
+                        <div class="class-name" th:text="${classEntry.key}">Class Name</div>
+                        <div class="badge" 
+                             th:classappend="${classAverages[classEntry.key] != null and classAverages[classEntry.key] >= 85 ? 'bg-success' : 
+                                            (classAverages[classEntry.key] != null and classAverages[classEntry.key] >= 75 ? 'bg-info' : 
+                                            (classAverages[classEntry.key] != null and classAverages[classEntry.key] >= 65 ? 'bg-warning' : 'bg-danger'))}"
+                             th:text="${classAverages[classEntry.key] != null and classAverages[classEntry.key] >= 85 ? 'Excellent' : 
+                                      (classAverages[classEntry.key] != null and classAverages[classEntry.key] >= 75 ? 'Good' : 
+                                      (classAverages[classEntry.key] != null and classAverages[classEntry.key] >= 65 ? 'Average' : 'Needs Improvement'))}">
+                            Performance Level
+                        </div>
+                    </div>
+                    <div class="class-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" th:text="${classEntry.value.size()}">0</div>
+                            <div class="stat-label">Students</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" th:text="${classAverages[classEntry.key] != null ? #numbers.formatDecimal(classAverages[classEntry.key], 1, 1) + '%' : '0%'}">0%</div>
+                            <div class="stat-label">Average</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" th:text="${marksByClass[classEntry.key] != null ? #numbers.formatDecimal(marksByClass[classEntry.key].stream().filter(m -> m.percentage >= 50).count() * 100.0 / marksByClass[classEntry.key].size(), 1, 0) + '%' : '0%'}">0%</div>
+                            <div class="stat-label">Pass Rate</div>
+                        </div>
+                    </div>
+                    <div class="subject-performance" th:if="${examsByClass[classEntry.key] != null}">
+                        <h6 class="mb-3">Subjects Offered:</h6>
+                        <div class="subject-item" th:each="exam : ${examsByClass[classEntry.key]}" th:if="${exam.subject != null}">
+                            <span class="subject-name" th:text="${exam.subject}">Subject</span>
+                            <span class="subject-score score-good" 
+                                  th:text="${marksByClass[classEntry.key] != null ? 
+                                           #numbers.formatDecimal(marksByClass[classEntry.key].stream()
+                                           .filter(m -> m.exam != null and m.exam.subject == exam.subject)
+                                           .mapToDouble(m -> m.percentage).average().orElse(0.0), 1, 0) + '%' : '0%'}">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div th:if="${studentsByClass == null or studentsByClass.isEmpty()}" class="row">
+            <div class="col-12">
+                <div class="dashboard-card text-center py-5">
+                    <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Class Data Available</h4>
+                    <p class="text-muted">Add some students and exams to see class analytics.</p>
+                    <div class="mt-3">
+                        <a href="/students/add" class="btn btn-primary btn-dashboard me-2">
+                            <i class="fas fa-user-plus me-2"></i>Add Students
+                        </a>
+                        <a href="/exams/add" class="btn btn-success btn-dashboard">
+                            <i class="fas fa-file-plus me-2"></i>Add Exams
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Options -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <h3 class="card-title mb-4">
+                        <i class="fas fa-download me-2"></i>
+                        Export Class Analytics
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-primary btn-dashboard" onclick="exportClassReport()">
+                            <i class="fas fa-file-pdf me-2"></i>Export to PDF
+                        </button>
+                        <button class="btn btn-success btn-dashboard" onclick="exportClassExcel()">
+                            <i class="fas fa-file-excel me-2"></i>Export to Excel
+                        </button>
+                        <button class="btn btn-info btn-dashboard" onclick="printClassReport()">
+                            <i class="fas fa-print me-2"></i>Print Report
+                        </button>
+                        <a href="/reports" class="btn btn-secondary btn-dashboard">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:replace="fragments/styles :: common-scripts"></th:block>
+    
+    <script th:inline="javascript">
+        // Get data from server
+        const classAverages = /*[[${classAverages}]]*/ {};
+        const subjectAverages = /*[[${subjectAverages}]]*/ {};
+        const studentsByClass = /*[[${studentsByClass}]]*/ {};
+        
+        // Class Comparison Chart
+        const classComparisonCtx = document.getElementById('classComparisonChart').getContext('2d');
+        const classLabels = Object.keys(classAverages);
+        const classData = Object.values(classAverages).map(avg => Math.round(avg * 10) / 10);
+        
+        new Chart(classComparisonCtx, {
+            type: 'bar',
+            data: {
+                labels: classLabels.length > 0 ? classLabels : ['No Data'],
+                datasets: [{
+                    label: 'Class Average %',
+                    data: classData.length > 0 ? classData : [0],
+                    backgroundColor: [
+                        '#667eea', '#764ba2', '#4CAF50', '#2196F3', 
+                        '#FF9800', '#9C27B0', '#00BCD4', '#4CAF50'
+                    ],
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Subject Performance Across Classes
+        const subjectClassCtx = document.getElementById('subjectClassChart').getContext('2d');
+        const subjectLabels = Object.keys(subjectAverages);
+        const subjectDataValues = Object.values(subjectAverages).map(avg => Math.round(avg * 10) / 10);
+        
+        new Chart(subjectClassCtx, {
+            type: 'line',
+            data: {
+                labels: classLabels.length > 0 ? classLabels : ['No Data'],
+                datasets: subjectLabels.slice(0, 3).map((subject, index) => ({
+                    label: subject,
+                    data: classLabels.map(() => subjectDataValues[index] || 0),
+                    borderColor: ['#667eea', '#4CAF50', '#FF9800'][index],
+                    backgroundColor: [`rgba(102, 126, 234, 0.1)`, `rgba(76, 175, 80, 0.1)`, `rgba(255, 152, 0, 0.1)`][index],
+                    tension: 0.4
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Performance Distribution Chart
+        const performanceDistributionCtx = document.getElementById('performanceDistributionChart').getContext('2d');
+        
+        // Calculate performance distribution from class averages
+        const excellent = Object.values(classAverages).filter(avg => avg >= 90).length;
+        const good = Object.values(classAverages).filter(avg => avg >= 80 && avg < 90).length;
+        const average = Object.values(classAverages).filter(avg => avg >= 70 && avg < 80).length;
+        const belowAverage = Object.values(classAverages).filter(avg => avg < 70).length;
+        
+        new Chart(performanceDistributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Excellent (90-100%)', 'Good (80-89%)', 'Average (70-79%)', 'Below Average (<70%)'],
+                datasets: [{
+                    data: [excellent, good, average, belowAverage],
+                    backgroundColor: [
+                        '#4CAF50',
+                        '#2196F3',
+                        '#FF9800',
+                        '#f44336'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#2d2d2d'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#ffffff',
+                            padding: 15,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Filter Functions
+        function applyFilters() {
+            const grade = document.getElementById('gradeFilter').value;
+            const subject = document.getElementById('subjectFilter').value;
+            const period = document.getElementById('periodFilter').value;
+            
+            console.log('Applying filters:', { grade, subject, period });
+            // Here you would typically make an AJAX call to update the data
+            alert('Filters applied successfully! Data would be refreshed in a real implementation.');
+        }
+
+        // Export functions
+        function exportClassReport() {
+            alert('Class analytics PDF export would be implemented here');
+        }
+
+        function exportClassExcel() {
+            alert('Class analytics Excel export would be implemented here');
+        }
+
+        function printClassReport() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
